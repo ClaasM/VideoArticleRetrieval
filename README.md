@@ -10,7 +10,7 @@ top
 tmux a
 psql -U postgres -d gdelt_social_video
 
-pg_dump -U postgres gdelt_social_video > ~/data/other/database_backups/dump_20181006
+pg_dump -U postgres video_article_retrieval > /Volumes/DeskDrive/database_backups/video_article_retrieval_20181016_tinyyolo
 scp claas@vid-gpu1.inf.cs.cmu.edu:~/dump_20180919 data/
 scp data/other/database_backups/dump_20180916 claas@vid-gpu1.inf.cs.cmu.edu:~/dump_20180916
 psql -U postgres gdelt_social_video < data/dump_20180919
@@ -33,6 +33,15 @@ install_name_tool -change @rpath/libcusolver.8.0.dylib /usr/local/cuda/lib/libcu
 install_name_tool -change @rpath/libcudart.8.0.dylib /usr/local/cuda/lib/libcudart.8.0.dylib -change @rpath/libcublas.8.0.dylib /usr/local/cuda/lib/libcublas.8.0.dylib -change @rpath/libcudnn.6.dylib /usr/local/cuda/lib/libcudnn.6.dylib -change @rpath/libcufft.8.0.dylib /usr/local/cuda/lib/libcufft.8.0.dylib -change @rpath/libcurand.8.0.dylib /usr/local/cuda/lib/libcurand.8.0.dylib -change @rpath/libcudart.8.0.dylib /usr/local/cuda/lib/libcudart.8.0.dylib /Users/claasmeiners/.virtualenvs/video_article_retrieval/lib/python3.5/site-packages/tensorflow/python/_pywrap_tensorflow_internal.so
 
 Make sure all environment va
+
+Speech Extraction
+-----------------
+
+Convert raw to wav:
+sox -t raw -r 16000 -b 16 -c 1 -L -e signed-integer goforward.raw goforward.wav
+
+Change bitrate:
+TODO
 
 Project Organization
 ------------
