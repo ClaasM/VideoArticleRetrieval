@@ -43,6 +43,31 @@ sox -t raw -r 16000 -b 16 -c 1 -L -e signed-integer goforward.raw goforward.wav
 Change bitrate:
 TODO
 
+Articles to Text
+----------------
+
+Boilerpipe somehow didn't load the jar, so some changes needed to be made to the code:
+
+    # previous args: "-Djava.class.path=%s" % os.pathsep.join(jars))
+
+    """-Djava.class.path=
+    /Users/claasmeiners/.virtualenvs/video_article_retrieval/lib/python3.5/site-packages/boilerpipe/data/boilerpipe-1.2.0/boilerpipe-1.2.0.jar:
+    /Users/claasmeiners/.virtualenvs/video_article_retrieval/lib/python3.5/site-packages/boilerpipe/data/boilerpipe-1.2.0/lib/nekohtml-1.9.13.jar:
+    /Users/claasmeiners/.virtualenvs/video_article_retrieval/lib/python3.5/site-packages/boilerpipe/data/boilerpipe-1.2.0/lib/xerces-2.9.1.jar
+    """
+    # Replace
+    # .virtualenvs/video_article_retrieval/lib/python3.5/site-packages
+    # with
+    # PycharmProjects/video_news_classification/python-boilerpipe/src
+
+    """
+    /Users/claasmeiners/PycharmProjects/video_news_classification/python-boilerpipe/src/boilerpipe/data/boilerpipe-1.2.0/boilerpipe-1.2.0.jar
+    /Users/claasmeiners/PycharmProjects/video_news_classification/python-boilerpipe/src/boilerpipe/data/boilerpipe-1.2.0/lib/nekohtml-1.9.13.jar
+    /Users/claasmeiners/PycharmProjects/video_news_classification/python-boilerpipe/src/boilerpipe/data/boilerpipe-1.2.0/lib/xerces-2.9.1.jar
+    """
+    args = "-Djava.class.path=/Users/claasmeiners/PycharmProjects/video_news_classification/python-boilerpipe/src/boilerpipe/data/boilerpipe-1.2.0/boilerpipe-1.2.0.jar:/Users/claasmeiners/PycharmProjects/video_news_classification/python-boilerpipe/src/boilerpipe/data/boilerpipe-1.2.0/lib/nekohtml-1.9.13.jar:/Users/claasmeiners/PycharmProjects/video_news_classification/python-boilerpipe/src/boilerpipe/data/boilerpipe-1.2.0/lib/xerces-2.9.1.jar"
+    jpype.startJVM(jpype.getDefaultJVMPath(), args)
+
 Project Organization
 ------------
 

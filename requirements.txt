@@ -18,3 +18,4 @@ imgaug
 pycocotools
 pocketsphinx
 pandas
+seaborn
