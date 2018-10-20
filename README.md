@@ -48,6 +48,16 @@ Articles to Text
 
 Boilerpipe somehow didn't load the jar, so some changes needed to be made to the code:
 
+Topic Modeling
+--------------
+
+Using LDA
+
+Visualizing the Topics
+----------------------
+
+brew install graphviz
+
     # previous args: "-Djava.class.path=%s" % os.pathsep.join(jars))
 
     """-Djava.class.path=

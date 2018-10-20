@@ -19,3 +19,5 @@ pycocotools
 pocketsphinx
 pandas
 seaborn
+networkx
+gensim

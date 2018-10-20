@@ -27,6 +27,11 @@ CREATE TABLE IF NOT EXISTS videos (
   PRIMARY KEY (platform, id)
 );
 
+CREATE TABLE IF NOT EXISTS articles (
+  source_url  TEXT PRIMARY KEY NOT NULL
+
+);
+
 -- INDICES
 -- Indices are only created where they are really needed, because they take up space and slow down inserts/deletes
 CREATE INDEX IF NOT EXISTS object_detection_yolo_id_index
