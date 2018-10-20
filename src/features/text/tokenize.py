@@ -1,7 +1,4 @@
 import contractions
-from nltk import word_tokenize
-from nltk.corpus import stopwords
-from nltk.stem import PorterStemmer
 
 
 def tokenize(text):
@@ -10,6 +7,11 @@ def tokenize(text):
     :param text:
     :return:
     """
+    # The import takes about 10% of total compute time of this function.
+    # Unfortunately its necessary to import here due to https://github.com/nltk/nltk/issues/947
+    from nltk import word_tokenize
+    from nltk.corpus import stopwords
+    from nltk.stem import PorterStemmer
 
     # Replace contractions in string of text (e.g. Didn't -> did not)
     text = contractions.fix(text)

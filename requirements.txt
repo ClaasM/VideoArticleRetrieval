@@ -23,3 +23,4 @@ networkx
 gensim
 nltk
 contractions
+pygraphviz

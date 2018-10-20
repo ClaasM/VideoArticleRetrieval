@@ -1,16 +1,16 @@
+from collections import defaultdict
+
 import networkx as nx
 from networkx.drawing.nx_agraph import graphviz_layout
 
-def topic_network_graph(ax, ):
 
+def topic_network_graph(lda, dictionary, num_topics):
     graph = nx.Graph()
 
     for i in range(num_topics):
         for (term_id, term_probability) in lda.get_topic_terms(topicid=i, topn=5):
             graph.add_node(i, color="#75DDFF")
             graph.add_edge(i, dictionary[term_id], weight=term_probability * 100)
-
-    plt.figure(figsize=(16, 16))
 
     pos = graphviz_layout(graph, prog="twopi", root='1')
     nodes = graph.nodes()
@@ -29,16 +29,12 @@ def topic_network_graph(ax, ):
     sizes = [16 if 'color' in node[1] else 8 for node in nodes]
     nx.draw_networkx_labels(graph, pos, font_size=12, font_family='sans-serif')
 
-    plt.axis('off')
-    plt.savefig('lda_network_graph.pdf', format="pdf", bbox_inches='tight')
-    plt.show()
 
-def topic_distribution_pie(ax, ):
-    db = MongoClient()['thesis-dev']
+def topic_distribution_pie(articles, lda, dictionary):
     topic_frequency = defaultdict(int)
-    for tweet in db.tweets.find():
+    for article in articles:
 
-        topics = lda[dictionary.doc2bow(tokenize(preprocess(tweet['text'])))]
+        topics = lda[dictionary.doc2bow(tokens)]
         for topic in topics:
             # print(topic)
             topic_frequency[topic[0]] += topic[1]
