@@ -28,8 +28,8 @@ CREATE TABLE IF NOT EXISTS videos (
 );
 
 CREATE TABLE IF NOT EXISTS articles (
-  source_url  TEXT PRIMARY KEY NOT NULL
-
+  source_url  TEXT PRIMARY KEY NOT NULL,
+  text TEXT NOT NULL
 );
 
 -- INDICES
