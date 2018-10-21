@@ -10,7 +10,8 @@ top
 tmux a
 psql -U postgres -d gdelt_social_video
 
-pg_dump -U postgres video_article_retrieval > /Volumes/DeskDrive/database_backups/video_article_retrieval_20181016_tinyyolo
+pg_dump -U postgres video_article_retrieval > /Volumes/DeskDrive/database_backups/video_article_retrieval_20181020
+pg_dump -U postgres gdelt_social_video > /Volumes/DeskDrive/database_backups/gdelt_social_video_20181020
 scp claas@vid-gpu1.inf.cs.cmu.edu:~/dump_20180919 data/
 scp data/other/database_backups/dump_20180916 claas@vid-gpu1.inf.cs.cmu.edu:~/dump_20180916
 psql -U postgres gdelt_social_video < data/dump_20180919

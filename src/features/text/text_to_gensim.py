@@ -7,6 +7,7 @@ from multiprocessing.pool import Pool
 
 import psycopg2
 from gensim import corpora
+from src.features.text import tokenize
 
 import time
 
@@ -22,7 +23,6 @@ c.execute("SELECT source_url, text FROM articles WHERE text_extraction_status='S
 
 
 def tokenize_parallel(article):
-    from src.features.text import tokenize
     source_url, text = article
     return source_url, tokenize.tokenize(text)
 

@@ -1,3 +1,3 @@
 """
-(Training is done in the LDA notebook)
+(Training is done in the LDA modeling notebook)
 """
