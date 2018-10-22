@@ -2,9 +2,10 @@ import os
 
 # TODO remove
 
-os.environ["BASE_PATH"] = os.path.dirname(os.path.realpath(__file__)) + "/../"
-os.environ["MRCNN_PATH"] = os.environ["BASE_PATH"] + "Mask_RCNN/"
-os.environ["MODEL_PATH"] = os.environ["BASE_PATH"] + "models/"
-os.environ["FIGURES_PATH"] = os.environ["BASE_PATH"] + "reports/figures/"
+os.environ["PROJECT_BASE_PATH"] = os.path.dirname(os.path.realpath(__file__)) + "/../"
+os.environ["MRCNN_PATH"] = os.environ["PROJECT_BASE_PATH"] + "Mask_RCNN/"
+os.environ["FIGURES_PATH"] = os.environ["PROJECT_BASE_PATH"] + "reports/figures/"
 
-os.environ["DATA_PATH"] = "/Volumes/DeskDrive/data/"
+os.environ["STORAGE_BASE_PATH"] = "/Volumes/DeskDrive/"
+os.environ["DATA_PATH"] = os.environ["STORAGE_BASE_PATH"] + "data/"
+os.environ["MODEL_PATH"] = os.environ["STORAGE_BASE_PATH"] + "models/"

@@ -11,6 +11,7 @@ data_cursor = data_connection.cursor()
 data_cursor.execute("""SELECT DISTINCT av.source_url
                       FROM article_videos AS av LEFT JOIN videos v ON (av.video_id, av.platform) = (v.id, v.platform)
                       WHERE v.crawling_status = 'Success'""")
+
 articles = data_cursor.fetchall()
 
 # Connect to the database where the results will be saved

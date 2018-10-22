@@ -49,3 +49,10 @@ def topic_distribution_pie(articles, lda, dictionary):
     plt.axis('equal')
     plt.savefig('topic_distribution.pdf', format="pdf", bbox_inches='tight')
     plt.show()
+
+
+def print_topics(lda, dictionary, num_topics):
+    for i in range(num_topics):
+        print("\n%d: " % i, end='')
+        for (term_id, term_probability) in lda.get_topic_terms(topicid=i, topn=5):
+            print("%s (%.4f), " % (dictionary[term_id], term_probability), end='')

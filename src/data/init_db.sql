@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS videos (
 
 CREATE TABLE IF NOT EXISTS articles (
   source_url  TEXT PRIMARY KEY NOT NULL,
-  text TEXT NOT NULL,
+  text TEXT,
   text_extraction_status TEXT DEFAULT 'Not Tried'
 );
 

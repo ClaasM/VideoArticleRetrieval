@@ -29,15 +29,17 @@ def tokenize_parallel(article):
 
 # Parallel tokenization, since it takes by far the most time
 crawling_progress = CrawlingProgress(article_count, update_every=1000)
+articles = list()
+token_count = 0
 with Pool(8) as pool:
-    articles = list()
-    for article in pool.imap_unordered(tokenize_parallel, c, chunksize=100):
-        articles.append(article)
+    for source_url, tokens in pool.imap_unordered(tokenize_parallel, c, chunksize=100):
+        articles.append((source_url, tokens))
+        token_count += len(tokens)
         crawling_progress.inc()
 
 # articles = [(source_url, tokenize.tokenize(text)) for (source_url, text) in c]
 # The rest is not parallelized.
-print("Querying + Tokenization took %d seconds" % (time.time() - start))
+print("Extracting %d tokens took %.2f seconds" % (token_count, time.time() - start))
 start = time.time()
 
 token_frequency = defaultdict(int)
@@ -45,25 +47,27 @@ for source_url, tokens in articles:
     for token in tokens:
         token_frequency[token] += 1
 
-print("Frequency counting took %d seconds" % (time.time() - start))
+print("Counting frequencies of %d distinct tokens took %.2f seconds" % (len(token_frequency), time.time() - start))
 start = time.time()
 
 # keep words that occur more than once
 documents = [[token for token in tokens if token_frequency[token] > 1]
              for (_, tokens) in articles]
 
-print("Filtering words took %d seconds" % (time.time() - start))
+print("Filtering down to %d tokens took %.2f seconds"
+      % (sum(len(document) for document in documents), time.time() - start))
 start = time.time()
 
 # Build a dictionary where for each document each word has its own id
 # We stick to the default pruning settings, since they work well.
 dictionary = corpora.Dictionary(documents)
+dictionary.filter_extremes() # Using Defaults for now
 dictionary.compactify()
 # and save the dictionary for future use
 # We use it for the topic model as well as the sentiment model.
 dictionary.save(os.environ['MODEL_PATH'] + 'articles.dict')
 
-print("Saving Dictionary took %d seconds" % (time.time() - start))
+print("Compactifying and saving the dictionary took %.2f seconds" % (time.time() - start))
 start = time.time()
 
 # Build the corpus: vectors with occurence of each word for each document
@@ -74,4 +78,4 @@ corpus = [dictionary.doc2bow(doc) for doc in documents]
 corpora.MmCorpus.serialize(os.environ['MODEL_PATH'] + 'articles.mm', corpus)
 # (This is only used for the LDA topic model)
 
-print("Saving Corpus took %d seconds" % (time.time() - start))
+print("Saving Corpus took %.2f seconds" % (time.time() - start))

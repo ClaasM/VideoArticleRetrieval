@@ -60,7 +60,7 @@ class METADATA(Structure):
                 ("names", POINTER(c_char_p))]
 
 
-lib = CDLL(os.environ["BASE_PATH"] + "libdarknet_%s.so" % PROCESSOR, RTLD_GLOBAL)
+lib = CDLL(os.environ["PROJECT_BASE_PATH"] + "libdarknet_%s.so" % PROCESSOR, RTLD_GLOBAL)
 lib.network_width.argtypes = [c_void_p]
 lib.network_width.restype = c_int
 lib.network_height.argtypes = [c_void_p]
@@ -164,7 +164,7 @@ def initialize_classifier(config="cfg/yolov3.cfg", weights="yolov3.weights", dat
     try:
         # Change the working directory to that of darknet to make the paths within darknet work
         # (TODO do properly)
-        os.chdir(os.environ["BASE_PATH"] + '/darknet')
+        os.chdir(os.environ["PROJECT_BASE_PATH"] + '/darknet')
         net = load_net(config.encode("utf-8"), weights.encode("utf-8"), 0)
         meta = load_meta(data.encode("utf-8"))
         os.chdir(os.path.dirname(os.path.realpath(__file__)))
