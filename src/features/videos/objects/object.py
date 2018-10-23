@@ -12,7 +12,7 @@ def get_occurence_rate():
     """
     # Get all the label probability sums
     features_connection = psycopg2.connect(database="video_article_retrieval", user="postgres")
-    query = "SELECT platform, id, SUM(probability) as total, "
+    query = "SELECT platform, id, "  # SUM(probability) as total,
     query += ",".join("SUM(CASE WHEN class='%s' THEN probability END) as %s"
                       % (label, label.replace(" ", "_"))
                       for label in constants.COCO_CLASS_NAMES)

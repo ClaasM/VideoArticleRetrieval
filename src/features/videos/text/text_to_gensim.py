@@ -2,15 +2,14 @@
 Takes the text and saves it as a dictionary and a corpus for gensim to use
 """
 import os
+import time
 from collections import defaultdict
 from multiprocessing.pool import Pool
 
 import psycopg2
 from gensim import corpora
-from src.features.text import tokenize
 
-import time
-
+from src.features.videos.text import tokenize
 from src.visualization.console import CrawlingProgress
 
 start = time.time()
