@@ -5,6 +5,8 @@ Make sure DYLD_LIBRARY_PATH is set
 # TODO every one second, sum up all detected objects (maybe even multiplied by size) and divide by the number of seconds
 
 import os
+import tempfile
+
 import psycopg2
 import cv2
 import time
@@ -16,7 +18,7 @@ from src.visualization.console import CrawlingProgress
 
 
 def run():
-    MODEL = "yolov3-tiny"  # Postfix -tiny
+    MODEL = "yolov3"  # Postfix -tiny
     net, meta = darknet_wrapper.initialize_classifier(
         config="cfg/%s.cfg" % MODEL,
         weights="weights/%s.weights" % MODEL,
@@ -42,7 +44,7 @@ def run():
             success, image = cap.read()
             if success:
                 if count % 30 == 0:
-                    path = os.environ["DATA_PATH"] + "/tmp/%05d.jpg" % count
+                    path = tempfile.gettempdir() + "/%05d.jpg" % count
                     cv2.imwrite(path, image)
                     images.append(path)
                 count += 1
@@ -57,7 +59,7 @@ def run():
             try:
                 result = darknet_wrapper.detect(net, meta, image)
 
-                # print("%d: Found %d rois in %s" % (index, len(result), image))
+                print("%d: Found %d rois in %s" % (index, len(result), image))
                 for entity in result:
                     # format is (class, probability (x,y,width, height)) ANKERED IN THE CENTER!
                     (label, probability, (x, y, width, height)) = entity
@@ -83,6 +85,7 @@ if __name__ == "__main__":
     run()
 
 """
+TODO
 Some statistics:
 Average number of items per video:
 """

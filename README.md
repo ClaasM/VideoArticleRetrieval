@@ -1,28 +1,6 @@
 
 Getting started:
 
-ssh claas@vid-gpu1.inf.cs.cmu.edu
-source ~/thesis/bin/activate
-
-python3 src/data/_crawlers/website_crawler.py
-slurm -i eth0
-top
-tmux a
-psql -U postgres -d gdelt_social_video
-
-pg_dump -U postgres video_article_retrieval > /Volumes/DeskDrive/database_backups/video_article_retrieval_20181020
-pg_dump -U postgres gdelt_social_video > /Volumes/DeskDrive/database_backups/gdelt_social_video_20181020
-scp claas@vid-gpu1.inf.cs.cmu.edu:~/dump_20180919 data/
-scp data/other/database_backups/dump_20180916 claas@vid-gpu1.inf.cs.cmu.edu:~/dump_20180916
-psql -U postgres gdelt_social_video < data/dump_20180919
-
-Stopping, restarting postgres:
-pg_ctl -D /usr/local/var/postgres stop
-pg_ctl -D /usr/local/var/postgres start
-
-./darknet detector test cfg/coco.data cfg/yolov3.cfg yolov3.weights data/dog.jpg
-export DYLD_LIBRARY_PATH="/usr/local/cuda/lib"
-
 Make sure the Project is in your PYTHONPATH, otherwise the src wont be importable
 
 video_news_classification

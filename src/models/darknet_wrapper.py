@@ -3,7 +3,7 @@ This is the default python wrapper of YOLOv3, with some adjustment to make it wo
 and some additions for easier integration with notebooks
 """
 
-PROCESSOR = "gpu"  # gpu or cpu
+PROCESSOR = "cpu"  # gpu or cpu
 
 from ctypes import *
 import random
@@ -12,7 +12,7 @@ import os
 # By the time a program such as Python is running,
 # the dynamic loader (ld.so.1 or something similar) has already read LD_LIBRARY_PATH and won't notice any changes
 # (See https://stackoverflow.com/questions/856116/changing-ld-library-path-at-runtime-for-ctypes)
-print(os.environ['DYLD_LIBRARY_PATH'])
+# print(os.environ['DYLD_LIBRARY_PATH'])
 
 
 def sample(probs):
