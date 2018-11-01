@@ -9,7 +9,7 @@ from multiprocessing.pool import Pool
 import psycopg2
 from gensim import corpora
 
-from src.features.videos.text import tokenize
+from src.features.text import tokenize
 from src.visualization.console import CrawlingProgress
 
 start = time.time()

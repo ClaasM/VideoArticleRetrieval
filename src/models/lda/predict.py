@@ -8,7 +8,7 @@ import psycopg2
 from gensim import corpora
 from gensim.models import LdaModel
 
-from src.features.videos.text import tokenize
+from src.features.text import tokenize
 from src.visualization.console import CrawlingProgress
 
 dictionary = corpora.Dictionary.load(os.environ['MODEL_PATH'] + 'articles.dict')

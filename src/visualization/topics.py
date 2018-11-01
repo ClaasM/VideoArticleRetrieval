@@ -6,14 +6,12 @@ from networkx.drawing.nx_agraph import graphviz_layout
 
 def topic_network_graph(lda, dictionary, num_topics):
     graph = nx.Graph()
-
     for i in range(num_topics):
         for (term_id, term_probability) in lda.get_topic_terms(topicid=i, topn=5):
             graph.add_node(i, color="#75DDFF")
             graph.add_edge(i, dictionary[term_id], weight=term_probability * 100)
 
-    pos = graphviz_layout(graph, prog="twopi", root='1')
-    nodes = graph.nodes()
+    pos = graphviz_layout(graph, root='1')
 
     # nodes
     nodes = graph.nodes(data=True)
@@ -26,7 +24,6 @@ def topic_network_graph(lda, dictionary, num_topics):
     nx.draw_networkx_edges(graph, pos, edgelist=edges, width=weights)
 
     # labels
-    sizes = [16 if 'color' in node[1] else 8 for node in nodes]
     nx.draw_networkx_labels(graph, pos, font_size=12, font_family='sans-serif')
 
 

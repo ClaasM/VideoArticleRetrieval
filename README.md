@@ -36,6 +36,8 @@ When using a machine with multiple CUDA versions installed, NVCC=nvcc has to be 
 NVCC=/usr/local/cuda-8.0/bin/nvcc, and all occurrences of /usr/local/cuda/ also have to be adjusted
 accordingly to /usr/local/cuda-8.0/
 
+When using LibCUDNN, batch and subdivision have to be set to 1 in yolov3.cfg
+
 Downloading the weights:
 
 Per default, the project looks for the weights in darknet/weights
