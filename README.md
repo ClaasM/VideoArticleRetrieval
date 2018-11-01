@@ -8,6 +8,12 @@ video_news_classification
 
 Linking video footage of events to news articles reporting on them
 
+Getting Started
+---------------
+
+Install local package: pip install -e .
+
+
 install_name_tool -change @rpath/libcusolver.8.0.dylib /usr/local/cuda/lib/libcusolver.8.0.dylib -change @rpath/libcudart.8.0.dylib /usr/local/cuda/lib/libcudart.8.0.dylib -change @rpath/libcublas.8.0.dylib /usr/local/cuda/lib/libcublas.8.0.dylib /Users/claasmeiners/.virtualenvs/video_article_retrieval/lib/python3.5/site-packages/tensorflow/python/_pywrap_tensorflow_internal.so
 install_name_tool -change @rpath/libcudart.8.0.dylib /usr/local/cuda/lib/libcudart.8.0.dylib -change @rpath/libcublas.8.0.dylib /usr/local/cuda/lib/libcublas.8.0.dylib -change @rpath/libcudnn.6.dylib /usr/local/cuda/lib/libcudnn.6.dylib -change @rpath/libcufft.8.0.dylib /usr/local/cuda/lib/libcufft.8.0.dylib -change @rpath/libcurand.8.0.dylib /usr/local/cuda/lib/libcurand.8.0.dylib -change @rpath/libcudart.8.0.dylib /usr/local/cuda/lib/libcudart.8.0.dylib /Users/claasmeiners/.virtualenvs/video_article_retrieval/lib/python3.5/site-packages/tensorflow/python/_pywrap_tensorflow_internal.so
 
@@ -15,6 +21,32 @@ Make sure all environment va
 
 Object Extraction
 -----------------
+
+Installing darknet (the project will look for it in TODO):
+
+git clone https://github.com/pjreddie/darknet.git
+
+cd darknet
+
+make
+
+Caveats when making darknet:
+
+When using a machine with multiple CUDA versions installed, NVCC=nvcc has to be changed to
+NVCC=/usr/local/cuda-8.0/bin/nvcc, and all occurrences of /usr/local/cuda/ also have to be adjusted
+accordingly to /usr/local/cuda-8.0/
+
+Downloading the weights:
+
+Per default, the project looks for the weights in darknet/weights
+
+wget https://pjreddie.com/media/files/yolov3.weights
+
+To test the detection:
+
+./darknet detect cfg/yolov3.cfg weights/yolov3.weights /mnt/DeskDrive/data/examples/images/00000.jpg
+
+Lastly, run the detection:
 
 python3 src/features/videos/objects/extract_objects_yolo.py
 

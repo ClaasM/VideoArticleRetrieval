@@ -59,7 +59,7 @@ def run():
             try:
                 result = darknet_wrapper.detect(net, meta, image)
 
-                print("%d: Found %d rois in %s" % (index, len(result), image))
+                # print("%d: Found %d rois in %s" % (index, len(result), image))
                 for entity in result:
                     # format is (class, probability (x,y,width, height)) ANKERED IN THE CENTER!
                     (label, probability, (x, y, width, height)) = entity
