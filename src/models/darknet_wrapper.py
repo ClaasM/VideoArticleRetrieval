@@ -3,7 +3,7 @@ This is the default python wrapper of YOLOv3, with some adjustment to make it wo
 and some additions for easier integration with notebooks
 """
 
-PROCESSOR = "cpu"  # gpu or cpu
+PROCESSOR = "gpu"  # gpu or cpu
 
 from ctypes import *
 import random

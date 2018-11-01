@@ -13,6 +13,11 @@ install_name_tool -change @rpath/libcudart.8.0.dylib /usr/local/cuda/lib/libcuda
 
 Make sure all environment va
 
+Object Extraction
+-----------------
+
+python3 src/features/videos/objects/extract_objects_yolo.py
+
 Speech Extraction
 -----------------
 
