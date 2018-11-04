@@ -3,6 +3,8 @@ Make sure DYLD_LIBRARY_PATH is set
 """
 
 # TODO every one second, sum up all detected objects (maybe even multiplied by size) and divide by the number of seconds
+# TODO the ./darkenet detect command prompts for a directory when no image is supplied.
+# TODO Maybe thats faster/works with cudNN without reducing batchsize to 1
 
 import os
 import tempfile
