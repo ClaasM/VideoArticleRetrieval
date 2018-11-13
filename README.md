@@ -71,6 +71,11 @@ Topic Modeling
 
 Using LDA
 
+Run src/models/lda/predict.py to predict
+Pre-compute the average for all articles:
+
+TODO remove the whole pre-compute thing if it doesn't take too long anyways
+
 Visualizing the Topics
 ----------------------
 

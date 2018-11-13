@@ -1,6 +1,6 @@
 """
 Because calculating the average topic of each video takes a while, it is saved in a separate table.
-TODO after building a
+TODO this is quite fast so we don't really need to preprocess it.
 """
 import psycopg2
 

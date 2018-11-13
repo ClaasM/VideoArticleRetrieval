@@ -8,16 +8,17 @@ import psycopg2
 from gensim import corpora
 from gensim.models import LdaModel
 
-from src.features.text import tokenize
+from src.features.text import article_tokenizer
 from src.visualization.console import CrawlingProgress
 
 dictionary = corpora.Dictionary.load(os.environ['MODEL_PATH'] + 'articles.dict')
 model = LdaModel.load(os.environ['MODEL_PATH'] + 'articles.lda')
 
 
+
 def classify(article):
     source_url, text = article
-    tokens = tokenize.tokenize(text)
+    tokens = article_tokenizer.tokenize(text)
 
     """
     doc_bow = [dictionary.doc2bow(token) for token in [tokens]]
@@ -54,6 +55,7 @@ def run():
     crawling_progress = CrawlingProgress(article_count, update_every=1000)
     articles_cursor = conn.cursor()
     articles_cursor.execute("SELECT source_url, text FROM articles WHERE text_extraction_status='Success'")
+
     # parallel classification
     with Pool(8) as pool:  # 16 seems to be around optimum
         for source_url, topics in pool.imap_unordered(classify, articles_cursor, chunksize=100):

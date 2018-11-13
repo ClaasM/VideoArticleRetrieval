@@ -18,6 +18,8 @@ stopwords = {'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you',
 # Augment with some more, application-specific stopwords
 # For very few websites, javascript wasn't recognized correctly by boilerpipe
 stopwords = stopwords.union({'said', 'say', 'var', 'also'})
+# 0: size (0.0237), px (0.0109), map (0.0092), mappingadds (0.0080), group (0.0072),
+
 
 
 def tokenize(text):
@@ -40,7 +42,6 @@ def tokenize(text):
     # Use nltk to tokenize the text
     words = word_tokenize(text)
     # Remove stopwords
-    # TODO put back in (this about doubles runtime)
     words = [word for word in words if word not in stopwords]
     # Stem
     stemmer = PorterStemmer()

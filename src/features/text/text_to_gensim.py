@@ -3,13 +3,14 @@ Takes the text and saves it as a dictionary and a corpus for gensim to use
 """
 import os
 import time
+import traceback
 from collections import defaultdict
 from multiprocessing.pool import Pool
 
 import psycopg2
 from gensim import corpora
 
-from src.features.text import tokenize
+from src.features.text.article_tokenizer import tokenize
 from src.visualization.console import CrawlingProgress
 
 start = time.time()
@@ -23,7 +24,7 @@ c.execute("SELECT source_url, text FROM articles WHERE text_extraction_status='S
 
 def tokenize_parallel(article):
     source_url, text = article
-    return source_url, tokenize.tokenize(text)
+    return source_url, tokenize(text)
 
 
 # Parallel tokenization, since it takes by far the most time
