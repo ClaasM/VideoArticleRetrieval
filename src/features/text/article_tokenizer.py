@@ -37,12 +37,12 @@ def tokenize(text):
     text = contractions.fix(text)
     # To lowercase
     text = text.lower()
-    # Remove all non-alphabetic characters (97 <= ord(x) <= 122)
-    text = "".join(filter(lambda x: x.isalpha() or x.isspace(), text))
+    # NLTK keeps these but I don't want them
+    text = text.replace("/", " ").replace("-", "")
     # Use nltk to tokenize the text
     words = word_tokenize(text)
-    # Remove stopwords
-    words = [word for word in words if word not in stopwords]
+    # Remove stopwords and words containing non-alphabetic characters
+    words = [word for word in words if word not in stopwords and word.isalpha()]
     # Stem
     stemmer = PorterStemmer()
     words = [stemmer.stem(word) for word in words]

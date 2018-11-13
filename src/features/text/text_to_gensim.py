@@ -64,7 +64,6 @@ dictionary = corpora.Dictionary(documents)
 dictionary.filter_extremes() # Using Defaults for now
 dictionary.compactify()
 # and save the dictionary for future use
-# We use it for the topic model as well as the sentiment model.
 dictionary.save(os.environ['MODEL_PATH'] + 'articles.dict')
 
 print("Compactifying and saving the dictionary took %.2f seconds" % (time.time() - start))
