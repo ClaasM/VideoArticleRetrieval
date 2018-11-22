@@ -26,3 +26,7 @@ contractions
 pygraphviz
 sklearn
 psycopg2
+# export CFLAGS="-I /Users/claasmeiners/.virtualenvs/video_article_retrieval/lib/python3.5/site-packages/numpy/core/include/ $CFLAGS"
+
+pyvlfeat
+neuralnet
