@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS videos (
   platform    TEXT NOT NULL,
 
   object_detection_yolo_status TEXT DEFAULT 'Not Processed',
+  resnet_status TEXT DEFAULT 'Not Processed',
 
   PRIMARY KEY (platform, id)
 );

@@ -30,3 +30,4 @@ psycopg2
 
 pyvlfeat
 neuralnet
+pydot_ng

@@ -1,4 +1,5 @@
 import os
+
 import keras.backend as K
 
 from keras import initializers
@@ -23,13 +24,12 @@ from keras.utils.data_utils import get_file
 from keras.applications.imagenet_utils import _obtain_input_shape
 
 
-WEIGHTS_PATH = 'https://github.com/qubvel/ResNet152/releases/download/v0.0.1/resnet152_weights_tf_dim_ordering_tf_kernels.h5'
-WEIGHTS_PATH_NO_TOP = 'https://github.com/qubvel/ResNet152/releases/download/v0.0.1/resnet152_weights_tf_dim_ordering_tf_kernels_no_top.h5'
+WEIGHTS_PATH = 'http://github.com/qubvel/ResNet152/releases/download/v0.0.1/resnet152_weights_tf_dim_ordering_tf_kernels.h5'
+WEIGHTS_PATH_NO_TOP = 'http://github.com/qubvel/ResNet152/releases/download/v0.0.1/resnet152_weights_tf_dim_ordering_tf_kernels_no_top.h5'
 
 
 class Scale(Layer):
     """ Custom Layer for ResNet used for BatchNormalization.
-
     Learns a set of weights and biases used for scaling the input data.
     the output consists simply in an element-wise multiplication of the input
     and a sum of a set of constants:
@@ -309,15 +309,13 @@ def ResNet152(include_top=True, weights='imagenet',
     if weights == 'imagenet':
         if include_top:
             weights_path = get_file(
-                '~/models/resnet152_weights_tf_dim_ordering_tf_kernels.h5',
+                os.environ["MODEL_PATH"] + 'resnet152_weights_tf_dim_ordering_tf_kernels.h5',
                 WEIGHTS_PATH,
-                cache_subdir='models',
                 md5_hash='cdb18a2158b88e392c0905d47dcef965')
         else:
             weights_path = get_file(
-                '~/models/resnet152_weights_tf_dim_ordering_tf_kernels_no_top.h5',
+                os.environ["MODEL_PATH"] + 'resnet152_weights_tf_dim_ordering_tf_kernels_no_top.h5',
                 WEIGHTS_PATH_NO_TOP,
-                cache_subdir='models',
                 md5_hash='02cb9130cc51543cd703c79697baa592')
         model.load_weights(weights_path)
 
