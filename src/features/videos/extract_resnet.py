@@ -2,11 +2,13 @@
 Several Feature extraction methods for videos involving resnet-152.
 Saves the features in the format required or w2vv.
 """
+"""
 # Force CPU for now
 import os
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # see issue #152
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
+"""
 
 import tempfile
 
@@ -18,7 +20,7 @@ from skimage.io import imread
 from skimage.transform import resize
 
 from src.data.videos import video as video_helper
-from src.models.resnet_152 import ResNet152
+from src.features.videos.resnet_152 import ResNet152
 from src.visualization.console import CrawlingProgress
 
 

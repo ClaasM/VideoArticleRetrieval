@@ -5,7 +5,7 @@ Set a bunch of env-vars if they're not set yet
 import os
 
 if "STORAGE_BASE_PATH" not in os.environ:
-    os.environ["STORAGE_BASE_PATH"] = "/Users/claasmeiners/" #"/Volumes/DeskDrive/"
+    os.environ["STORAGE_BASE_PATH"] = "/Volumes/DeskDrive/"
 
 os.environ["DATA_PATH"] = os.environ["STORAGE_BASE_PATH"] + "data/"
 os.environ["MODEL_PATH"] = os.environ["STORAGE_BASE_PATH"] + "models/"

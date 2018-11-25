@@ -46,5 +46,5 @@ def tokenize(text):
     # Stem
     stemmer = PorterStemmer()
     words = [stemmer.stem(word) for word in words]
-    # TODO maybe remove all words not in wordnet
+
     return words

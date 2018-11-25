@@ -11,7 +11,7 @@ scikit-image
 # Careful not to overwrite tensorflow on the Server!
 # tensorflow==1.4.0
 # tensorflow-gpu==1.1.0
-keras==2.0.8
+keras==2.1.5
 opencv-python
 h5py
 imgaug
@@ -26,6 +26,7 @@ contractions
 pygraphviz
 sklearn
 psycopg2
+scikit-image
 # export CFLAGS="-I /Users/claasmeiners/.virtualenvs/video_article_retrieval/lib/python3.5/site-packages/numpy/core/include/ $CFLAGS"
 
 pyvlfeat

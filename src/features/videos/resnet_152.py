@@ -24,8 +24,8 @@ from keras.utils.data_utils import get_file
 from keras.applications.imagenet_utils import _obtain_input_shape
 
 
-WEIGHTS_PATH = 'http://github.com/qubvel/ResNet152/releases/download/v0.0.1/resnet152_weights_tf_dim_ordering_tf_kernels.h5'
-WEIGHTS_PATH_NO_TOP = 'http://github.com/qubvel/ResNet152/releases/download/v0.0.1/resnet152_weights_tf_dim_ordering_tf_kernels_no_top.h5'
+WEIGHTS_PATH = 'https://github.com/qubvel/ResNet152/releases/download/v0.0.1/resnet152_weights_tf_dim_ordering_tf_kernels.h5'
+WEIGHTS_PATH_NO_TOP = 'https://github.com/qubvel/ResNet152/releases/download/v0.0.1/resnet152_weights_tf_dim_ordering_tf_kernels_no_top.h5'
 
 
 class Scale(Layer):

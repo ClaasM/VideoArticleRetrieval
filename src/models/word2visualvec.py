@@ -1,9 +1,6 @@
 import numpy as np
-from skimage.io import imread
-from skimage.transform import resize
-from keras.applications.imagenet_utils import decode_predictions
 from keras.applications.imagenet_utils import preprocess_input
-from src.models.resnet_152 import ResNet152
+from src.features.videos.resnet_152 import ResNet152
 
 from keras.preprocessing import image
 
