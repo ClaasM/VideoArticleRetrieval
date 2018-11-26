@@ -95,6 +95,8 @@ class W2VV_MS(Base_model):
         text_embed_vec = self.model.predict([np.array([text_vec]), np.array([text_vec_2])])
         return text_embed_vec[0]
 
-    def predict_batch(self, text_vec_batch, text_vec_batch_2):
-        text_embed_vecs = self.model.predict([np.array(text_vec_batch), np.array(text_vec_batch_2)])
+    def predict_batch(self, text_vec_batch):
+        # TODO maybe this doesn't need to be wrapped in an array again
+        text_embed_vecs = self.model.predict([np.array(text_vec_batch)])
+        # TODO make this obsolete
         return text_embed_vecs

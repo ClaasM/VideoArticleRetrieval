@@ -32,3 +32,11 @@ def run():
 def clean_str(string):
     string = re.sub(r"[^A-Za-z0-9]", " ", string)
     return string.strip().lower().split()
+
+
+text_batch = []
+        for sent in raw_sent_batch:
+            sent_bow_vec = bow2vec.mapping(sent)
+            sent_w2v_vec = w2v2vec.mapping(sent)
+            if sent_bow_vec is not None and sent_w2v_vec is not None:
+                text_batch.append(list(sent_bow_vec) + list(sent_w2v_vec))
