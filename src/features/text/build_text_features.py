@@ -3,6 +3,7 @@ Reads (article_id, [tokens]) from tokens.pickle and writes:
 (article_id, w2v)
 (article_id, bow)
 """
+import json
 import os
 import pickle
 import psycopg2
@@ -17,17 +18,15 @@ import src
 # W2V_FILE = os.environ["MODEL_PATH"] + "/word2vec.model"
 from src.visualization.console import CrawlingProgress
 
-TOKENS_FILE = os.environ["DATA_PATH"] + "/interim/articles/tokens.pickle"
 VOCABULARY_FILE = os.environ["DATA_PATH"] + "/interim/articles/vocabulary.pickle"
 
-TEXT_FEATURES_FILE = os.environ["DATA_PATH"] + "/interim/articles/features.pickle"
-
-vocabulary = pickle.load(open(VOCABULARY_FILE, "rb"))
-articles = pickle.load(open(TOKENS_FILE, "rb"))
+# TODO
+vocabulary = ["human"]  # pickle.load(open(VOCABULARY_FILE, "rb"))
 
 
 def count_tokens(article):
-    article_id, tokens = article
+    article_id, tokens_string = article
+    tokens = json.loads(tokens_string)
     token_counter = dict()
     for word in vocabulary:
         token_counter[word] = 0
@@ -37,7 +36,6 @@ def count_tokens(article):
     count_list = [token_counter[token] for token in vocabulary]
     maximum = max(count_list) or 1
     normalized = [float(i) / maximum for i in count_list]
-
     return article_id, zlib.compress(np.array(normalized), 9)
 
 
@@ -48,14 +46,15 @@ def run():
     article_cursor.execute("SELECT count(1) FROM articles WHERE text_extraction_status='Success'")
     article_count, = article_cursor.fetchone()
     # avoid loading all articles into memory.
-    article_cursor.execute("SELECT source_url, text FROM articles WHERE text_extraction_status='Success'")
+    article_cursor.execute("SELECT id, tokens FROM articles WHERE text_extraction_status='Success'")
 
     crawling_progress = CrawlingProgress(article_count, update_every=1000)
 
     with Pool(8) as pool:
         for article_id, compressed_features in pool.imap_unordered(count_tokens, article_cursor):
-            update_cursor.execute("UPDATE articles SET tokens=%s WHERE id=%s", [compressed_features, article_id])
+            update_cursor.execute("UPDATE articles SET embedding=%s WHERE id=%s", [compressed_features, article_id])
             crawling_progress.inc()
+        conn.commit()
 
     # model = Word2Vec.load(W2V_FILE)
     # print(w2v_model.wv.most_similar(positive="day"))

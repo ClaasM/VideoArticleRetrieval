@@ -32,8 +32,6 @@ def run():
     os.system('chmod +x %s' % runfile_vis)
 
     val_per_hist_file = os.path.join(CHECKPOINT_DIR, 'val_per_hist.txt')
-    model_file_name = os.path.join(CHECKPOINT_DIR, 'model.json')
-    model_img_name = os.path.join(CHECKPOINT_DIR, 'model.png')
 
     tb_logger.configure(CHECKPOINT_DIR, flush_secs=5)
 
@@ -41,14 +39,11 @@ def run():
 
     bow2vec = BoW2VecFilterStop(VOCABULARY_FILE)
     w2v2vec = AveWord2VecFilterStop(W2V_FILE)
-
     n_text_layers = [bow2vec.ndims + w2v2vec.ndims, 2048, 2048]
-
     # define word2visualvec model
     model = W2VV_MS(n_text_layers)
 
-    model.save_json_model(model_file_name)
-    model.plot(model_img_name)
+    # model.plot(model_img_name)
     opt = {}
 
     opt.clipnorm = 5.0
@@ -57,12 +52,7 @@ def run():
     model.compile_model('mse', opt=opt)
     # model.init_model(opt.init_model_from)
 
-    """
-    TODO continue going through the code and then run it ON THE FLICKR DATASET
-    """
-
-    # training set
-
+    # decompressed = np.frombuffer(zlib.decompress(compressed_features), np.float64)
     data = []  # TODO tuples of (video_features_2048(?), [article1_features, ...]) ()
 
     best_validation_performance = 0

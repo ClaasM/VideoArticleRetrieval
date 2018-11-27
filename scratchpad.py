@@ -1,26 +1,14 @@
-import pickle
 import zlib
-
 import numpy as np
 
-test_list = list()
+import psycopg2
 
-for i in range(2048):
-    if i % 3 == 0:
-        test_list.append(3)
-    else:
-        test_list.append(0)
+conn = psycopg2.connect(database="video_article_retrieval", user="postgres")
+article_cursor = conn.cursor()
+article_cursor.execute("SELECT count(1) FROM articles WHERE text_extraction_status='Success'")
 
-test_sum = sum(test_list)
+article_cursor.execute("SELECT id, embedding FROM articles WHERE text_extraction_status='Success'")
 
-test_numpy = np.array(test_list)
-
-string = str(test_numpy)
-print("pickle.dumps: %d" % len(bytes(pickle.dumps(test_numpy))))
-print("bytes: %d" % len(bytes(test_numpy)))
-print("str: %d" % len(bytes(str(test_numpy), "utf-8")))
-print("zlib_numpy: %d" % len(zlib.compress(test_numpy, 9)))
-print("zlib: %d" % len(zlib.compress(test_list, 9)))
-
-# utf-8: 203 chars
-# pickle.dumps: 16543
+for article_id, compressed_features in article_cursor:
+    decompressed = np.frombuffer(zlib.decompress(compressed_features), np.float64)
+    print(decompressed)

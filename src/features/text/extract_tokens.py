@@ -32,7 +32,8 @@ def run():
         for article_id, tokens_string in pool.imap_unordered(tokenize_parallel, article_cursor, chunksize=100):
             update_cursor.execute("UPDATE articles SET tokens=%s WHERE id=%s", [tokens_string, article_id])
             crawling_progress.inc()
-            conn.commit()
+
+        conn.commit()
 
 
 if __name__ == '__main__':

@@ -37,7 +37,8 @@ CREATE TABLE IF NOT EXISTS videos (
 );
 
 CREATE TABLE IF NOT EXISTS articles (
-  source_url  TEXT PRIMARY KEY NOT NULL,
+  id SERIAL PRIMARY KEY,
+  source_url  TEXT UNIQUE NOT NULL,
   text TEXT,
   text_extraction_status TEXT DEFAULT 'Not Tried',
   tokens TEXT,
