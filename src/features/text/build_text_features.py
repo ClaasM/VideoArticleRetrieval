@@ -5,13 +5,18 @@ Reads (article_id, [tokens]) from tokens.pickle and writes:
 """
 import os
 import pickle
+import psycopg2
 from multiprocessing.pool import Pool
+import numpy as np
+import zlib
 
 # from gensim.models import Word2Vec
 from sklearn import preprocessing
 import src
 
 # W2V_FILE = os.environ["MODEL_PATH"] + "/word2vec.model"
+from src.visualization.console import CrawlingProgress
+
 TOKENS_FILE = os.environ["DATA_PATH"] + "/interim/articles/tokens.pickle"
 VOCABULARY_FILE = os.environ["DATA_PATH"] + "/interim/articles/vocabulary.pickle"
 
@@ -32,16 +37,25 @@ def count_tokens(article):
     count_list = [token_counter[token] for token in vocabulary]
     maximum = max(count_list) or 1
     normalized = [float(i) / maximum for i in count_list]
-    return article_id, normalized
+
+    return article_id, zlib.compress(np.array(normalized), 9)
 
 
 def run():
-    features = dict()
+    conn = psycopg2.connect(database="video_article_retrieval", user="postgres")
+    article_cursor = conn.cursor()
+    update_cursor = conn.cursor()
+    article_cursor.execute("SELECT count(1) FROM articles WHERE text_extraction_status='Success'")
+    article_count, = article_cursor.fetchone()
+    # avoid loading all articles into memory.
+    article_cursor.execute("SELECT source_url, text FROM articles WHERE text_extraction_status='Success'")
+
+    crawling_progress = CrawlingProgress(article_count, update_every=1000)
+
     with Pool(8) as pool:
-        for article_id, vector in pool.imap_unordered(count_tokens, articles.items()):
-            features[article_id] = vector
-            print(article_id)
-    pickle.dump(features, open(TEXT_FEATURES_FILE, "wb+"))
+        for article_id, compressed_features in pool.imap_unordered(count_tokens, article_cursor):
+            update_cursor.execute("UPDATE articles SET tokens=%s WHERE id=%s", [compressed_features, article_id])
+            crawling_progress.inc()
 
     # model = Word2Vec.load(W2V_FILE)
     # print(w2v_model.wv.most_similar(positive="day"))

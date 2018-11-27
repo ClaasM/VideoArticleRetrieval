@@ -7,7 +7,6 @@ from scipy.spatial import distance
 
 from src.models.text.embeddings import BoW2VecFilterStop, AveWord2VecFilterStop
 from src.models.w2vv import W2VV_MS
-from src.util.bigfile import BigFile
 
 config = tf.ConfigProto()
 config.gpu_options.per_process_gpu_memory_fraction = 0.3
@@ -44,9 +43,6 @@ def run():
     w2v2vec = AveWord2VecFilterStop(W2V_FILE)
 
     n_text_layers = [bow2vec.ndims + w2v2vec.ndims, 2048, 2048]
-
-    img_feats = BigFile(FEATURE_FILE)
-    # val_img_feats = BigFile(FEATURE_FILE)
 
     # define word2visualvec model
     model = W2VV_MS(n_text_layers)
