@@ -2,13 +2,15 @@
 Several Feature extraction methods for videos involving resnet-152.
 Saves the features in the format required or w2vv.
 """
-"""
+
 # Force CPU for now
 import os
+import zlib
+
+from src.features.videos.resnet_152 import ResNet152
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # see issue #152
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
-"""
 
 import tempfile
 
@@ -20,26 +22,23 @@ from skimage.io import imread
 from skimage.transform import resize
 
 from src.data.videos import video as video_helper
-from src.features.videos.resnet_152 import ResNet152
 from src.visualization.console import CrawlingProgress
 
+"""
+This might be useful for other models:
+layer_name = 'avg_pool'
+intermediate_layer_model = Model(inputs=model.input, outputs=model.get_layer(layer_name).output)
+"""
 
-def preprocess(x):
-    x = resize(x, (224, 224), mode='constant') * 255
-    x = preprocess_input(x)
-    if x.ndim == 3:
-        x = np.expand_dims(x, 0)
-    return x
-
+EVERY_FRAME = 30
 
 if __name__ == '__main__':
 
-    model = ResNet152(include_top=False)
-
     conn = psycopg2.connect(database="video_article_retrieval", user="postgres")
-    c = conn.cursor()
-    c.execute("SELECT id, platform FROM videos WHERE resnet_status<>'Success' AND platform = 'facebook'")
-    videos = c.fetchall()
+    video_cursor = conn.cursor()
+    update_cursor = conn.cursor()
+    video_cursor.execute("SELECT id, platform FROM videos WHERE resnet_status<>'Success' AND platform = 'facebook'")
+    videos = video_cursor.fetchall()
     crawling_progress = CrawlingProgress(len(videos), update_every=10)
     for id, platform in videos:
 
@@ -50,8 +49,8 @@ if __name__ == '__main__':
         while True:
             success, image = cap.read()
             if success:
-                if count % 30 == 0:
-                    path = tempfile.gettempdir() + "/%05d.jpg" % count
+                if count % EVERY_FRAME == 0:
+                    path = tempfile.gettempdir() + "/%09d.jpg" % count
                     cv2.imwrite(path, image)
                     images.append(path)
                 count += 1
@@ -59,19 +58,27 @@ if __name__ == '__main__':
                 # Reached the end of the video
                 break
 
-        print(len(images))
-
+        model = ResNet152(include_top=False)
+        image_results = list()
         for index, image_path in enumerate(images):
-            # prepare image
-            img = imread(image_path)
-            x = preprocess(img)
-            y = model.predict(x)
+            x = imread(image_path)
+            # TODO choose random
+            x = resize(x, (224, 224), mode='constant') * 255
+            x = preprocess_input(x)
+            # TODO is this even necessary?
+            print(x.ndim)
+            if x.ndim == 3:
+                x = np.expand_dims(x, 0)
 
-            # print result
-            print("Result: %s" % y)
-            ### tiget_cat
+            y = model.predict(x)
+            image_results.append(y[0][0][0])
+
+        # Mean pooling
+        mean = np.mean(image_results, axis=0)
+        compressed_features = zlib.compress(np.array(mean), 9)
 
         # Update the classification status
-        # c.execute("UPDATE videos SET resnet_status = 'Success' WHERE id=%s AND platform=%s", [id, platform])
-        # conn.commit()
+        update_cursor.execute("UPDATE videos SET resnet_status = 'Success', embedding=%s WHERE id=%s AND platform=%s",
+                              [compressed_features, id, platform])
+        conn.commit()
         crawling_progress.inc()

@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS videos (
 
   object_detection_yolo_status TEXT DEFAULT 'Not Processed',
   resnet_status TEXT DEFAULT 'Not Processed',
-
+  embedding BYTEA,
   PRIMARY KEY (platform, id)
 );
 
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS articles (
   text TEXT,
   text_extraction_status TEXT DEFAULT 'Not Tried',
   tokens TEXT,
-  embedding TEXT
+  embedding BYTEA
 );
 
 -- INDICES
