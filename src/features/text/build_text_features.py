@@ -12,7 +12,6 @@ import numpy as np
 import zlib
 
 # from gensim.models import Word2Vec
-from sklearn import preprocessing
 import src
 
 # W2V_FILE = os.environ["MODEL_PATH"] + "/word2vec.model"
@@ -20,8 +19,7 @@ from src.visualization.console import CrawlingProgress
 
 VOCABULARY_FILE = os.environ["DATA_PATH"] + "/interim/articles/vocabulary.pickle"
 
-# TODO
-vocabulary = ["human"]  # pickle.load(open(VOCABULARY_FILE, "rb"))
+vocabulary = pickle.load(open(VOCABULARY_FILE, "rb"))
 
 
 def count_tokens(article):

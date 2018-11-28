@@ -13,16 +13,13 @@ import keras.backend as K
 
 # basic word2visualvec
 class Base_model:
-    def compile_model(self, loss_name, opt=None):
-        print("loss function: ", loss_name)
-        print("optimizer: ", opt.optimizer)
-        print("learning_rate: ", opt.lr)
-        if loss_name == 'mse':
-            loss = loss_name
+    def compile_model(self):
 
-        clipnorm = opt.clipnorm
-        optimizer = opt.optimizer
-        learning_rate = opt.lr
+        clipnorm = 5
+        optimizer = 'rmsprop'
+        loss = 'mse'
+        learning_rate = 0.0001
+
         if optimizer == 'sgd':
             # let's train the model using SGD + momentum (how original).
             if clipnorm > 0:
@@ -79,16 +76,16 @@ class W2VV_MS(Base_model):
         print("Building model...")
 
         # bow, word2vec or word hashing embedded sentence vector
-        auxiliary_input = Input(shape=(input_size,))
+        input_layer = Input(shape=(n_layers[0],))
 
-        x = concatenate([auxiliary_input], axis=-1)
+        x = input_layer
         for n_neuron in range(1, len(n_layers) - 1):
             x = Dense(n_layers[n_neuron], activation='relu', kernel_regularizer=l2(0))(x)
             x = Dropout(0.2)(x)
 
         output = Dense(n_layers[-1], activation='relu', kernel_regularizer=l2(0))(x)
 
-        self.model = Model(inputs=[auxiliary_input], outputs=output)
+        self.model = Model(inputs=[input_layer], outputs=output)
         self.model.summary()
 
     def predict_one(self, text_vec, text_vec_2):
