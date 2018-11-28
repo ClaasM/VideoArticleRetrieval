@@ -3,14 +3,14 @@ Several Feature extraction methods for videos involving resnet-152.
 Saves the features in the format required or w2vv.
 """
 
-# Force CPU for now
-import os
 import zlib
 
 from src.features.videos.resnet_152 import ResNet152
 
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # see issue #152
-os.environ["CUDA_VISIBLE_DEVICES"] = ""
+# Force CPU
+# import os
+# os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # see issue #152
+# os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 import tempfile
 
@@ -39,6 +39,7 @@ if __name__ == '__main__':
     update_cursor = conn.cursor()
     video_cursor.execute("SELECT id, platform FROM videos WHERE resnet_status<>'Success' AND platform = 'facebook'")
     videos = video_cursor.fetchall()
+    model = ResNet152(include_top=False)
     crawling_progress = CrawlingProgress(len(videos), update_every=10)
     for id, platform in videos:
 
@@ -58,18 +59,13 @@ if __name__ == '__main__':
                 # Reached the end of the video
                 break
 
-        model = ResNet152(include_top=False)
         image_results = list()
         for index, image_path in enumerate(images):
             x = imread(image_path)
-            # TODO choose random
+            # TODO choose random x/y-location if aspect ratio is not square
             x = resize(x, (224, 224), mode='constant') * 255
             x = preprocess_input(x)
-            # TODO is this even necessary?
-            print(x.ndim)
-            if x.ndim == 3:
-                x = np.expand_dims(x, 0)
-
+            x = np.expand_dims(x, 0)  # Flatten R,G,B
             y = model.predict(x)
             image_results.append(y[0][0][0])
 
@@ -82,3 +78,5 @@ if __name__ == '__main__':
                               [compressed_features, id, platform])
         conn.commit()
         crawling_progress.inc()
+
+

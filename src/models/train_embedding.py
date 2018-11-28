@@ -18,9 +18,6 @@ import tensorboard_logger as tb_logger
 import numpy as np
 
 CHECKPOINT_DIR = ""  # TODO
-VOCABULARY_FILE = os.environ["DATA_PATH"] + "/interim/articles/vocabulary.pickle"
-W2V_FILE = os.environ["DATA_PATH"] + ""  # TODO
-FEATURE_FILE = os.environ["DATA_PATH"] + ""  # TODO
 
 BATCH_SIZE = 100
 MAX_EPOCHS = 100
@@ -31,15 +28,17 @@ def run():
     open(runfile_vis, 'w').write('port=$1\ntensorboard --logdir %s --port $port' % CHECKPOINT_DIR)
     os.system('chmod +x %s' % runfile_vis)
 
-    val_per_hist_file = os.path.join(CHECKPOINT_DIR, 'val_per_hist.txt')
+    # TODO average word vector
+    query = """
+    SELECT count(*) FROM article_videos av
+        JOIN videos v ON av.video_id=v.id AND av.platform = v.platform
+            JOIN articles a ON a.source_url=av.source_url
+    """
 
     tb_logger.configure(CHECKPOINT_DIR, flush_secs=5)
 
     # text embedding (text representation)
-
-    bow2vec = BoW2VecFilterStop(VOCABULARY_FILE)
-    w2v2vec = AveWord2VecFilterStop(W2V_FILE)
-    n_text_layers = [bow2vec.ndims + w2v2vec.ndims, 2048, 2048]
+    n_text_layers = [2048, 2048, 2048]
     # define word2visualvec model
     model = W2VV_MS(n_text_layers)
 

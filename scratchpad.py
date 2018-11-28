@@ -1,31 +1,13 @@
-from keras.applications.resnet50 import ResNet50
-from keras.preprocessing import image
-from keras.applications.resnet50 import preprocess_input, decode_predictions
-from keras.models import Model
+import zlib
+
+import psycopg2
 import numpy as np
 
+conn = psycopg2.connect(database="video_article_retrieval", user="postgres")
+video_cursor = conn.cursor()
+video_cursor.execute("SELECT embedding FROM videos WHERE resnet_status='Success'")
 
-class Img2Vec():
-
-    def __init__(self):
-        model = ResNet50(weights='imagenet')
-
-        layer_name = 'avg_pool'
-        self.intermediate_layer_model = Model(inputs=model.input, outputs=model.get_layer(layer_name).output)
-
-    def get_vec(self, image_path):
-        """ Gets a vector embedding from an image
-        :param image_path: path to image on filesystem
-        :returns: numpy ndarray
-        """
-
-        img = image.load_img(image_path, target_size=(224, 224))
-        x = image.img_to_array(img)
-        x = np.expand_dims(x, axis=0)
-        x = preprocess_input(x)
-        intermediate_output = self.intermediate_layer_model.predict(x)
-
-        return intermediate_output[0][0][0]
-
-
-Img2Vec().get_vec("/Users/claasmeiners/data/examples/images/duck.jpg")
+for compressed_features, in video_cursor:
+    decompressed = np.frombuffer(zlib.decompress(compressed_features), np.float32)
+    print(decompressed)
+    print(decompressed.sum())
