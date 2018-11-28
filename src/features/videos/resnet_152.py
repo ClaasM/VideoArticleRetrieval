@@ -1,6 +1,14 @@
 import os
 
+# Make sure Resnet is not eating up all of the memory
+import tensorflow as tf
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+sess = tf.Session(config=config)
 import keras.backend as K
+K.set_session(sess)
+
+
 
 from keras import initializers
 from keras.layers import Input
@@ -225,7 +233,7 @@ def ResNet152(include_top=True, weights='imagenet',
         ValueError: in case of invalid argument for `weights`,
             or invalid input shape.
     """
-    print(K.tensorflow_backend._get_available_gpus())
+
 
     eps = 1.1e-5
 
