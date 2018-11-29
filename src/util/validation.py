@@ -8,9 +8,13 @@ def ranking_validation(validation_data, model):
     x_validation = np.array([x for x, y in validation_data])
     y_validation = np.array([y for x, y in validation_data])
     y_predictions = model.predict(x_validation)
+    # print(np.sum(np.mean(x_validation, axis=0)))  # Should be ~14
+    # print(np.sum(np.mean(y_validation, axis=0)))  # Should be ~170
+    # print(np.sum(np.mean(y_predictions, axis=0)))  # Should be ~170
+
     # text_embed_vecs = self.model.predict([np.array(text_vec_batch)])
     # TODO is predictions/articles the right way around
-    similarities = distance.cdist(y_predictions, y_validation, 'cosine')
+    similarities = distance.cdist(y_predictions, y_validation, 'seuclidean')
     index = random.randint(0, len(x_validation) - 1)
     print("Example prediction: %d->%d (should be %d)" %
           (sum(x_validation[index]), sum(y_predictions[index]), sum(y_validation[index])))

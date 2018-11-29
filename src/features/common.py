@@ -6,7 +6,7 @@ import random
 
 
 def preprocess(feature):
-    features = feature - np.min(feature)
+    feature = feature - np.min(feature)
     return feature / (np.max(feature) or 1)
 
 
@@ -36,9 +36,9 @@ def get_data():
         # Add all combinations to the training data.
         for article_feature in articles_features:
             article_feature = preprocess(article_feature)
-            data.append((video_feature, article_feature))
+            data.append((article_feature, video_feature))
         # For the validation data, we select one article to ensure retrieval-score comparability with other datasets
         validation_article = random.choice(articles_features)
-        validation_data.append((video_feature, validation_article))
+        validation_data.append((validation_article, video_feature))
 
     return data, validation_data
