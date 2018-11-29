@@ -74,7 +74,7 @@ def run():
     conn = psycopg2.connect(database="video_article_retrieval", user="postgres")
     video_cursor = conn.cursor()
     update_cursor = conn.cursor()
-    video_cursor.execute("SELECT id, platform FROM videos WHERE resnet_status<>'Success' AND platform = 'facebook'")
+    video_cursor.execute("SELECT id, platform FROM videos WHERE resnet_status<>'Success'")
     videos = video_cursor.fetchall()
     crawling_progress = CrawlingProgress(len(videos), update_every=100)
     # 4 works best. Too many and each worker doesn't have the GPU memory it needs
