@@ -5,8 +5,6 @@ from gensim import corpora
 from gensim.models import Word2Vec
 from gensim.models.callbacks import CallbackAny2Vec
 
-from src.util import util
-
 
 class EpochLogger(CallbackAny2Vec):
     '''Callback to log information about training'''

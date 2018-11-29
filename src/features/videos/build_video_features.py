@@ -60,14 +60,17 @@ def process(video):
             # Reached the end of the video
             break
 
-    # Batch predict
-    frame_results = model.predict(np.array(images))
-    # The shape is (n_frames, 1, 1, layer_output)
-    frame_results = frame_results.reshape(-1, frame_results.shape[-1])
-    # Mean pooling
-    mean = np.mean(frame_results, axis=0)
-    # Compression to reduce memory footprint of sparse vectors
-    return id, platform, zlib.compress(mean, 9)
+    if len(images) > 0:
+        # Batch predict
+        frame_results = model.predict(np.array(images))
+        # The shape is (n_frames, 1, 1, layer_output)
+        frame_results = frame_results.reshape(-1, frame_results.shape[-1])
+        # Mean pooling
+        mean = np.mean(frame_results, axis=0)
+        # Compression to reduce memory footprint of sparse vectors
+        return id, platform, zlib.compress(mean, 9)
+    else:
+        return id, platform, None
 
 
 def run():
@@ -80,10 +83,15 @@ def run():
     # 4 works best. Too many and each worker doesn't have the GPU memory it needs
     with Pool(4, initializer=init_worker) as pool:
         for id, platform, compressed_features in pool.imap_unordered(process, videos, chunksize=10):
-            # Insert embedding and update the classification status
-            update_cursor.execute(
-                "UPDATE videos SET resnet_status = 'Success', embedding=%s WHERE id=%s AND platform=%s",
-                [compressed_features, id, platform])
+            if compressed_features is not None:
+                # Insert embedding and update the classification status
+                update_cursor.execute(
+                    "UPDATE videos SET resnet_status = 'Success', embedding=%s WHERE id=%s AND platform=%s",
+                    [compressed_features, id, platform])
+            else:
+                update_cursor.execute(
+                    "UPDATE videos SET resnet_status = 'No images extracted' WHERE id=%s AND platform=%s",
+                    [id, platform])
             conn.commit()
             crawling_progress.inc()
 
