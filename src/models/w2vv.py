@@ -29,7 +29,7 @@ class W2VV:
         self.model.summary()
 
     def compile_model(self):
-        loss = mean_absolute_percentage_error
+        loss = mean_squared_error
         optimizer = RMSprop(lr=0.0001, clipnorm=5, rho=0.9, epsilon=1e-6)
         self.model.compile(loss=loss, optimizer=optimizer)
 

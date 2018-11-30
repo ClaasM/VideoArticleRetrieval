@@ -90,7 +90,7 @@ def run():
                     [compressed_features, id, platform])
             else:
                 update_cursor.execute(
-                    "UPDATE videos SET resnet_status = 'No images extracted' WHERE id=%s AND platform=%s",
+                    "UPDATE videos SET resnet_status = 'Compressed Features None' WHERE id=%s AND platform=%s",
                     [id, platform])
             conn.commit()
             crawling_progress.inc()
