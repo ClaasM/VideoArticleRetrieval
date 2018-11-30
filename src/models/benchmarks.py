@@ -1,6 +1,6 @@
 from keras.losses import mean_squared_error
 
-from src.features.common import get_data
+from src.features.get_features import get_data
 import numpy as np
 
 import keras.backend as K
