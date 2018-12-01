@@ -42,7 +42,8 @@ CREATE TABLE IF NOT EXISTS articles (
   text TEXT,
   text_extraction_status TEXT DEFAULT 'Not Tried',
   tokens TEXT,
-  embedding BYTEA
+  bow_2048 BYTEA,
+  w2v_2048 BYTEA
 );
 
 -- INDICES

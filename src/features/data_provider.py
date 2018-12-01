@@ -7,11 +7,7 @@ import zlib
 
 import numpy as np
 import psycopg2
-
-
-def preprocess(feature):
-    feature = feature - np.min(feature)
-    return feature / (np.max(feature) or 1)
+from sklearn.preprocessing import StandardScaler
 
 
 class DataProvider:
@@ -20,49 +16,68 @@ class DataProvider:
         video_cursor = conn.cursor()  # for the videos
         video_cursor.execute(
             "SELECT id, platform, embedding FROM videos WHERE resnet_status='Success' ORDER BY random()")
+
+        x, y = self.get_1_to_1_random(video_cursor, conn)
+
+        x = StandardScaler().fit_transform(x, y)
+
+        self.ranking_validation_x = np.array(x[:validation_size])
+        self.ranking_validation_y = np.array(y[:validation_size])
+
+        self.ranking_test_x = np.array(x[validation_size:validation_size + test_size])
+        self.ranking_test_y = np.array(y[validation_size:validation_size + test_size])
+
+        # The data used for training (and used for testing by keras)
+        self.train_validation_x = np.array(x[validation_size + test_size:])
+        self.train_validation_y = np.array(y[validation_size + test_size:])
+
+        """
+        TODO delete if it remains unused
         # Create the test and validation data used for the ranking. (1,1) mapping for comparability to other research.
-        self.ranking_validation_x, self.ranking_validation_y = self.get_1_to_1(validation_size, video_cursor, conn)
-        self.ranking_test_x, self.ranking_test_y = self.get_1_to_1(test_size, video_cursor, conn)
+        self.ranking_validation_x, self.ranking_validation_y = self.get_1_to_1(video_cursor, conn, validation_size)
+        self.ranking_test_x, self.ranking_test_y = self.get_1_to_1(video_cursor, conn, test_size)
         # The data used for training (and used for testing by keras)
         self.train_validation_x, self.train_validation_y = self.get_1_to_n(video_cursor, conn)
 
-    def get_1_to_1(self, size, video_cursor, conn):
-        article_cursor = conn.cursor()  # for the articles
-        x = np.zeros((size, 2048))
-        y = np.zeros((size, 2048))
-        for index, (video_id, platform, compressed_video_feature) in zip(range(size), video_cursor):
-            video_feature = np.frombuffer(zlib.decompress(compressed_video_feature), np.float32)
-            # The video feature is not yet preprocessed, so its preprocessed now (same way as the text) TODO
-            y[index] = preprocess(video_feature)
+        self.train_validation_x = StandardScaler().fit_transform(self.train_validation_x)
+        self.train_validation_y = StandardScaler().fit_transform(self.train_validation_y)
+        """
 
+    def get_1_to_1_random(self, video_cursor, conn, size=999999999):
+        article_cursor = conn.cursor()  # for the articles
+        x = list()
+        y = list()
+        for index, (video_id, platform, compressed_video_feature) in zip(range(size), video_cursor):
             # get one random article that embeds this video
             article_cursor.execute(
-                "SELECT a.embedding FROM article_videos av  "
+                "SELECT a.bow_2048 FROM article_videos av  "
                 "JOIN articles a ON av.source_url = a.source_url "
                 "WHERE (av.video_id, av.platform) = (%s,%s) ORDER BY random() LIMIT 1",
                 [video_id, platform])
             compressed_article_feature, = article_cursor.fetchone()
-            article_feature = np.frombuffer(zlib.decompress(compressed_article_feature), np.float64)
-            x[index] = preprocess(article_feature)
+
+            article_feature = np.frombuffer(zlib.decompress(compressed_article_feature), np.float32)
+            video_feature = np.frombuffer(zlib.decompress(compressed_video_feature), np.float32)
+            x.append(article_feature)
+            y.append(video_feature)
+
         return x, y
 
-    def get_1_to_n(self, video_cursor, conn):
+    def get_1_to_n(self, video_cursor, conn, size=999999999):
         article_cursor = conn.cursor()  # for the join table
         x = list()
         y = list()
-        for video_id, platform, compressed_video_feature in video_cursor:
+        for index, (video_id, platform, compressed_video_feature) in zip(range(size), video_cursor):
             video_feature = np.frombuffer(zlib.decompress(compressed_video_feature), np.float32)
-            video_feature = preprocess(video_feature)
             # get all articles that embed this video
             article_cursor.execute(
-                "SELECT a.embedding FROM article_videos av  "
+                "SELECT a.bow_2048 FROM article_videos av  "
                 "JOIN articles a ON av.source_url = a.source_url "
                 "WHERE (av.video_id, av.platform) = (%s,%s)",
                 [video_id, platform])
             for compressed_article_feature, in article_cursor:
                 # get the features of the articles
-                article_feature = np.frombuffer(zlib.decompress(compressed_article_feature), np.float64)
-                article_feature = preprocess(article_feature)
+                article_feature = np.frombuffer(zlib.decompress(compressed_article_feature), np.float32)
                 x.append(article_feature)
                 y.append(video_feature)
 

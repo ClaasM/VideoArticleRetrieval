@@ -12,29 +12,48 @@ import numpy as np
 import zlib
 
 # from gensim.models import Word2Vec
+from gensim.models import Word2Vec, KeyedVectors
+
 import src
 
 # W2V_FILE = os.environ["MODEL_PATH"] + "/word2vec.model"
 from src.visualization.console import CrawlingProgress
 
 VOCABULARY_FILE = os.environ["DATA_PATH"] + "/interim/articles/vocabulary.pickle"
+W2V_FILE = os.environ["MODEL_PATH"] + "/word2vec.model"
 
 vocabulary = pickle.load(open(VOCABULARY_FILE, "rb"))
 
 
-def count_tokens(article):
-    article_id, tokens_string = article
-    tokens = json.loads(tokens_string)
+def init_worker():
+    global model
+    model = KeyedVectors.load(W2V_FILE)
+
+
+# TODO use doc2bow from the dictionary
+def count_tokens(tokens):
     token_counter = dict()
     for word in vocabulary:
         token_counter[word] = 0
     for token in tokens:
         if token in token_counter:
             token_counter[token] += 1
-    count_list = [token_counter[token] for token in vocabulary]
-    maximum = max(count_list) or 1
-    normalized = [float(i) / maximum for i in count_list]
-    return article_id, zlib.compress(np.array(normalized), 9)
+    counts = np.array([token_counter[token] for token in vocabulary], dtype=np.float32)
+    return zlib.compress(counts, 9)
+
+
+def w2v_embed(tokens):
+    total = np.zeros(2048, dtype=np.float32)
+    for token in tokens:
+        if token in model:  # Word2Vec model filters some token
+            total += model[token]
+    return zlib.compress(total.mean(axis=0), 9)
+
+
+def extract_features(article):
+    article_id, tokens_string = article
+    tokens = json.loads(tokens_string)
+    return article_id, count_tokens(tokens), w2v_embed(tokens)
 
 
 def run():
@@ -48,15 +67,12 @@ def run():
 
     crawling_progress = CrawlingProgress(article_count, update_every=1000)
 
-    with Pool(8) as pool:
-        for article_id, compressed_features in pool.imap_unordered(count_tokens, article_cursor):
-            update_cursor.execute("UPDATE articles SET embedding=%s WHERE id=%s", [compressed_features, article_id])
+    with Pool(8, initializer=init_worker) as pool:
+        for article_id, compressed_bow, compressed_w2v in pool.imap_unordered(extract_features, article_cursor):
+            update_cursor.execute("UPDATE articles SET bow_2048=%s, w2v_2048=%s WHERE id=%s",
+                                  [compressed_bow, compressed_w2v, article_id])
             crawling_progress.inc()
         conn.commit()
-
-    # model = Word2Vec.load(W2V_FILE)
-    # print(w2v_model.wv.most_similar(positive="day"))
-    # print(w2v_model.wv["day"])
 
 
 if __name__ == '__main__':
