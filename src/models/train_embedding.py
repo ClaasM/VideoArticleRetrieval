@@ -20,8 +20,8 @@ BATCH_SIZE = 100
 EPOCHS = 100
 
 # Smaller values make for faster valuation.
-TEST_SIZE = 100
-VALIDATION_SIZE = 100
+TEST_SIZE = 1000
+VALIDATION_SIZE = 1000
 
 
 def run():
@@ -38,7 +38,7 @@ def run():
               y=data_provider.train_validation_y,
               batch_size=BATCH_SIZE,
               epochs=EPOCHS,
-              callbacks=[ranking_callback],
+              callbacks=[],
               validation_split=0.1)
 
     # TODO validate model on best epoch with data_provider.ranking_test_x

@@ -50,7 +50,7 @@ class DataProvider:
         for index, (video_id, platform, compressed_video_feature) in zip(range(size), video_cursor):
             # get one random article that embeds this video
             article_cursor.execute(
-                "SELECT a.bow_2048 FROM article_videos av  "
+                "SELECT a.w2v_2048 FROM article_videos av  "
                 "JOIN articles a ON av.source_url = a.source_url "
                 "WHERE (av.video_id, av.platform) = (%s,%s) ORDER BY random() LIMIT 1",
                 [video_id, platform])
