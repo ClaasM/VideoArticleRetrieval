@@ -47,7 +47,7 @@ def w2v_embed(tokens):
     for token in tokens:
         if token in model:  # Word2Vec model filters some token
             total += model[token]
-    return zlib.compress(total.mean(axis=0), 9)
+    return zlib.compress(total / (len(tokens) or 1), 9)
 
 
 def extract_features(article):

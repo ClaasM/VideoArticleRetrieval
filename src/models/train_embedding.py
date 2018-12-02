@@ -38,7 +38,7 @@ def run():
               y=data_provider.train_validation_y,
               batch_size=BATCH_SIZE,
               epochs=EPOCHS,
-              callbacks=[],
+              callbacks=[ranking_callback], # ranking_callback
               validation_split=0.1)
 
     # TODO validate model on best epoch with data_provider.ranking_test_x
@@ -47,9 +47,3 @@ def run():
 
 if __name__ == "__main__":
     run()
-
-"""
-Results (best mean_rank):
-mape, euclidean: {'median_rank': 42.0, 'mean_rank': 45.36, 'r5': 10.0, 'r10': 15.0, 'r1': 3.0}
-mse, cosine: {'r10': 87.0, 'r5': 79.0, 'median_rank': 1.0, 'mean_rank': 6.37, 'r1': 58.0}
-"""

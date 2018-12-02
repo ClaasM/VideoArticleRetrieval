@@ -43,11 +43,11 @@ class DataProvider:
         self.train_validation_y = StandardScaler().fit_transform(self.train_validation_y)
         """
 
-    def get_1_to_1_random(self, video_cursor, conn, size=999999999):
+    def get_1_to_1_random(self, video_cursor, conn, max_size=999999999):
         article_cursor = conn.cursor()  # for the articles
         x = list()
         y = list()
-        for index, (video_id, platform, compressed_video_feature) in zip(range(size), video_cursor):
+        for index, (video_id, platform, compressed_video_feature) in zip(range(max_size), video_cursor):
             # get one random article that embeds this video
             article_cursor.execute(
                 "SELECT a.w2v_2048 FROM article_videos av  "
@@ -57,17 +57,17 @@ class DataProvider:
             compressed_article_feature, = article_cursor.fetchone()
 
             article_feature = np.frombuffer(zlib.decompress(compressed_article_feature), np.float32)
-            video_feature = np.frombuffer(zlib.decompress(compressed_video_feature), np.float32)
+            video_feature = np.frombuffer(zlib.decompress(compressed_video_feature), np.float32) # np.random.rand(2048)
             x.append(article_feature)
             y.append(video_feature)
 
         return x, y
 
-    def get_1_to_n(self, video_cursor, conn, size=999999999):
+    def get_1_to_n(self, video_cursor, conn, max_size=999999999):
         article_cursor = conn.cursor()  # for the join table
         x = list()
         y = list()
-        for index, (video_id, platform, compressed_video_feature) in zip(range(size), video_cursor):
+        for index, (video_id, platform, compressed_video_feature) in zip(range(max_size), video_cursor):
             video_feature = np.frombuffer(zlib.decompress(compressed_video_feature), np.float32)
             # get all articles that embed this video
             article_cursor.execute(

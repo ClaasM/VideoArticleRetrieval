@@ -12,11 +12,11 @@ def build_model():
 
     hidden = Dense(2048,
               activation='relu',
-              kernel_regularizer=regularizers.l2(0.0003))(input)  # , kernel_regularizer=l2(0)
+              kernel_regularizer=regularizers.l2(0.0005))(input)
     # hidden = Dropout(0.3)(hidden)
     output = Dense(2048,
                    activation='relu',
-                   kernel_regularizer=regularizers.l2(0.0003))(hidden)  # , kernel_regularizer=l2(0)
+                   kernel_regularizer=regularizers.l2(0.0005))(hidden)
 
     model = Model(inputs=[input], outputs=output)
     # model.summary()
@@ -28,6 +28,17 @@ def build_model():
 
     return model
 
+"""
+Experiments with word2vec
+
+Ls      Train   Test
+0.001   0.235   0.235
+0.0005  0.227   0.235
+0.0003  0.222   0.238
+
+
+With regularization 0.0005 the best median rank is 340
+"""
 
 """
 Optimizing Test loss.
@@ -36,7 +47,7 @@ Then fix overfitting with Dropout.
 
 Best test loss
 
-L2 beta, in 1/10^^ steps, no dropout:
+L2 beta, in 1/10^n steps, no dropout:
 Ls      Train   Test
 0.1:    0.455   0.451
 0.01:   0.263   0.260
