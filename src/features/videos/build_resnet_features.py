@@ -30,7 +30,8 @@ intermediate_layer_model = Model(inputs=model.input, outputs=model.get_layer(lay
 """
 
 EVERY_FRAME = 30
-
+MIN_IMAGES = 10
+# Total: Minimum 300 Frames
 
 def init_worker():
     # Need to import it here: stackoverflow.com/questions/42504669/keras-tensorflow-and-multiprocessing-in-python
@@ -39,6 +40,7 @@ def init_worker():
     # initialize the model
     global model
     model = ResNet152(include_top=False)
+
 
 
 def process(video):
@@ -61,7 +63,7 @@ def process(video):
             # Reached the end of the video
             break
 
-    if len(images) > 0:
+    if len(images) > MIN_IMAGES:
         # Batch predict
         frame_results = model.predict(np.array(images))
         # The shape is (n_frames, 1, 1, layer_output)
@@ -69,9 +71,9 @@ def process(video):
         # Mean pooling
         mean = np.mean(frame_results, axis=0)
         # Compression to reduce memory footprint of sparse vectors
-        return id, platform, zlib.compress(mean, 9)
+        return "Success", id, platform, zlib.compress(mean, 9)
     else:
-        return id, platform, None
+        return "Too few frames", id, platform, None
 
 
 def run():
@@ -83,16 +85,16 @@ def run():
     crawling_progress = CrawlingProgress(len(videos), update_every=100)
     # 4 works best. Too many and each worker doesn't have the GPU memory it needs
     with Pool(4, initializer=init_worker) as pool:
-        for id, platform, compressed_features in pool.imap_unordered(process, videos, chunksize=10):
-            if compressed_features is not None:
+        for status, id, platform, compressed_features in pool.imap_unordered(process, videos, chunksize=10):
+            if status == 'Success':
                 # Insert embedding and update the classification status
                 update_cursor.execute(
                     "UPDATE videos SET resnet_status = 'Success', resnet_2048=%s WHERE id=%s AND platform=%s",
                     [compressed_features, id, platform])
             else:
                 update_cursor.execute(
-                    "UPDATE videos SET resnet_status = 'Compressed Features None' WHERE id=%s AND platform=%s",
-                    [id, platform])
+                    "UPDATE videos SET resnet_status = %s WHERE id=%s AND platform=%s",
+                    [status, id, platform])
             conn.commit()
             crawling_progress.inc()
 
