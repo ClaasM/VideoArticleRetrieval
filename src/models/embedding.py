@@ -8,15 +8,16 @@ import keras.backend as K
 # TODO what does the MS-postfix mean?
 def build_model(input_size, output_size):
     # Building model
+    print("Input size: %d, Output size: %d")
     input = Input(shape=(input_size,))
 
     hidden = Dense(input_size,
               activation='relu',
-              kernel_regularizer=regularizers.l2(0.0003))(input)
+              kernel_regularizer=regularizers.l2(0.0001))(input)
     # hidden = Dropout(0.3)(hidden)
     output = Dense(output_size,
                    activation='relu',
-                   kernel_regularizer=regularizers.l2(0.0003))(hidden)
+                   kernel_regularizer=regularizers.l2(0.0001))(hidden)
 
     model = Model(inputs=[input], outputs=output)
     # model.summary()
@@ -32,10 +33,10 @@ def build_model(input_size, output_size):
 """
 Experiments with soundnet:
 (new data provider)
-Ls      Train   Test
+Ls      Train   Test    r10
 0.0005  
-0.0003  
-0.0001  
+0.0003  0.145   0.151   0.243
+0.0001  0.194   0.168   0.278
 
 0.0005 has better train loss AND validation loss but way worse validation median rank
 """

@@ -73,7 +73,7 @@ def run():
             else:
                 print(str(status)[:100])
                 update_cursor.execute(
-                    "UPDATE videos SET soundnet_status =%s WHERE id=%s AND platform=%s",
+                    "UPDATE videos SET soundnet_status=%s WHERE id=%s AND platform=%s",
                     [status, id, platform])
             conn.commit()
             crawling_progress.inc()

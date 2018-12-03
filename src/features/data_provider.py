@@ -9,6 +9,7 @@ import numpy as np
 import psycopg2
 from sklearn.preprocessing import StandardScaler
 
+
 class DataProvider:
     def __init__(self, validation_size, test_size):
         conn = psycopg2.connect(database="video_article_retrieval", user="postgres")
@@ -52,7 +53,8 @@ class DataProvider:
             article_cursor.execute(
                 "SELECT a.w2v_2048, a.bow_2048 FROM article_videos av  "
                 "JOIN articles a ON av.source_url = a.source_url "
-                "WHERE (av.video_id, av.platform) = (%s,%s) ORDER BY random() LIMIT 1",
+                "WHERE (av.video_id, av.platform) = (%s,%s) AND a.text_extraction_status='Success' "
+                "ORDER BY random() LIMIT 1",
                 [video_id, platform])
             w2v_compressed, bow_compressed = article_cursor.fetchone()
             article_feature = np.concatenate([

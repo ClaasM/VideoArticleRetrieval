@@ -29,13 +29,17 @@ DATA_CACHE = os.environ['MODEL_PATH'] + "/data_provider.pickle"
 
 def run():
     # During parameter tuning, this makes things a bit faster:
-    #data_provider = DataProvider(VALIDATION_SIZE, TEST_SIZE)
-    #pickle.dump(data_provider, open(DATA_CACHE, "wb+"))
-    data_provider = pickle.load(open(DATA_CACHE, "rb"))
+    data_provider = DataProvider(VALIDATION_SIZE, TEST_SIZE)
+    pickle.dump(data_provider, open(DATA_CACHE, "wb+"))
+    #data_provider = pickle.load(open(DATA_CACHE, "rb"))
+
+    # 15505 -> 0.148
+    # 15372 -> 0.151
+    print(len(data_provider.train_x))
 
     # tensorboard_logger = TensorBoard(log_dir="/home/claas/logs/%d" % time.time())
     ranking_callback = RankingCallback(data_provider.validation_x,
-                                       data_provider.validation_y, )
+                                       data_provider.validation_y)
     # define model
     model = build_model(
         data_provider.train_x.shape[1],
