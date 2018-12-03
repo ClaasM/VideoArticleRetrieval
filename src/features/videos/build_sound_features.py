@@ -43,10 +43,11 @@ def process(video):
             # reshaping the audio data so it fits into the graph (batch_size, num_samples, num_filter_channels)
             audio = np.reshape(audio, (1, -1, 1))
             prediction = model.predict(audio)
-            os.remove(path)  # Delete the temp file
+            subprocess.call(["rm", path])
             prediction = prediction.mean(axis=1)[0]
             return "Success", id, platform, zlib.compress(prediction, 9)
         else:
+            subprocess.call(["rm", path])
             return "No Audio", id, platform, None
     except Exception as e:
         return str(e), id, platform, None
