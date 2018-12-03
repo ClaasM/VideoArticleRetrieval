@@ -50,10 +50,16 @@ def w2v_embed(tokens):
     return zlib.compress(total / (len(tokens) or 1), 9)
 
 
+MIN_TOKENS = 50
+
+
 def extract_features(article):
     article_id, tokens_string = article
     tokens = json.loads(tokens_string)
-    return article_id, count_tokens(tokens), w2v_embed(tokens)
+    if len(tokens) > MIN_TOKENS:
+        return "Success", article_id, count_tokens(tokens), w2v_embed(tokens)
+    else:
+        return "Too few tokens", article_id, None, None
 
 
 def run():
@@ -68,11 +74,17 @@ def run():
     crawling_progress = CrawlingProgress(article_count, update_every=1000)
 
     with Pool(8, initializer=init_worker) as pool:
-        for article_id, compressed_bow, compressed_w2v in pool.imap_unordered(extract_features, article_cursor):
-            update_cursor.execute("UPDATE articles SET bow_2048=%s, w2v_2048=%s WHERE id=%s",
-                                  [compressed_bow, compressed_w2v, article_id])
+        for status, article_id, compressed_bow, compressed_w2v in pool.imap_unordered(extract_features, article_cursor):
+            if status == 'Success':
+                update_cursor.execute(
+                    "UPDATE articles SET bow_2048=%s, w2v_2048=%s, feature_extraction_status='Success' WHERE id=%s",
+                    [compressed_bow, compressed_w2v, article_id])
+            else:
+                update_cursor.execute(
+                    "UPDATE articles SET feature_extraction_status=%s WHERE id=%s",
+                    [status, article_id])
             crawling_progress.inc()
-        conn.commit()
+            conn.commit()
 
 
 if __name__ == '__main__':

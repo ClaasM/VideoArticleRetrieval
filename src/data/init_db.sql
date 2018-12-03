@@ -8,42 +8,47 @@ Then run this script to initialize it.
 
 -- TABLES
 
-CREATE TABLE IF NOT EXISTS object_detection_tiny_yolo (
+CREATE TABLE IF NOT EXISTS object_detection_tiny_yolo
+(
   -- contains all objects in the videos detected by YOLO
   -- the dector is run every 1 second.
-  id          TEXT NOT NULL, --the video_id is extracted from the url when crawling it (to make querying for it faster).
-  platform    TEXT NOT NULL,
-  second      INT NOT NULL,
-  class       TEXT NOT NULL,
+  id          TEXT  NOT NULL, --the video_id is extracted from the url when crawling it (to make querying for it faster).
+  platform    TEXT  NOT NULL,
+  second      INT   NOT NULL,
+  class       TEXT  NOT NULL,
   probability FLOAT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS object_detection_yolo (
-  id          TEXT NOT NULL,
-  platform    TEXT NOT NULL,
-  second      INT NOT NULL,
-  class       TEXT NOT NULL,
+CREATE TABLE IF NOT EXISTS object_detection_yolo
+(
+  id          TEXT  NOT NULL,
+  platform    TEXT  NOT NULL,
+  second      INT   NOT NULL,
+  class       TEXT  NOT NULL,
   probability FLOAT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS videos (
-  id          TEXT NOT NULL, --the video_id is extracted from the url when crawling it (to make querying for it faster).
-  platform    TEXT NOT NULL,
+CREATE TABLE IF NOT EXISTS videos
+(
+  id                           TEXT NOT NULL, --the video_id is extracted from the url when crawling it (to make querying for it faster).
+  platform                     TEXT NOT NULL,
 
   object_detection_yolo_status TEXT DEFAULT 'Not Processed',
-  resnet_status TEXT DEFAULT 'Not Processed',
-  embedding BYTEA,
+  resnet_status                TEXT DEFAULT 'Not Processed',
+  embedding                    BYTEA,
   PRIMARY KEY (platform, id)
 );
 
-CREATE TABLE IF NOT EXISTS articles (
-  id SERIAL PRIMARY KEY,
-  source_url  TEXT UNIQUE NOT NULL,
-  text TEXT,
-  text_extraction_status TEXT DEFAULT 'Not Tried',
-  tokens TEXT,
-  bow_2048 BYTEA,
-  w2v_2048 BYTEA
+CREATE TABLE IF NOT EXISTS articles
+(
+  id                        SERIAL PRIMARY KEY,
+  source_url                TEXT UNIQUE NOT NULL,
+  text                      TEXT,
+  text_extraction_status    TEXT DEFAULT 'Not Tried',
+  tokens                    TEXT,
+  bow_2048                  BYTEA,
+  w2v_2048                  BYTEA,
+  feature_extraction_status TEXT default 'Not Processed'
 );
 
 -- INDICES
