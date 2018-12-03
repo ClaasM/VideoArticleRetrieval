@@ -42,7 +42,6 @@ def process(video):
             audio *= 256.0 / maximum
             # reshaping the audio data so it fits into the graph (batch_size, num_samples, num_filter_channels)
             audio = np.reshape(audio, (1, -1, 1))
-
             prediction = model.predict(audio)
             os.remove(path)  # Delete the temp file
             prediction = prediction.mean(axis=1)[0]
@@ -57,11 +56,13 @@ def run():
     conn = psycopg2.connect(database="video_article_retrieval", user="postgres")
     video_cursor = conn.cursor()
     update_cursor = conn.cursor()
-    video_cursor.execute("SELECT id, platform FROM videos WHERE soundnet_status<>'Success'")
+    # TODO do for all
+    video_cursor.execute("SELECT id, platform FROM videos WHERE "
+                         "soundnet_status<>'Success' AND soundnet_status<>'No Audio' AND resnet_status='Success'")
     videos = video_cursor.fetchall()
     crawling_progress = CrawlingProgress(len(videos), update_every=100)
     # 4 works best. Too many and each worker doesn't have the GPU memory it needs
-    with Pool(4, initializer=init_worker) as pool:
+    with Pool(3, initializer=init_worker) as pool:
         for status, id, platform, compressed_features in pool.imap_unordered(process, videos, chunksize=10):
             if status == "Success":
                 # Insert embedding and update the classification status

@@ -6,15 +6,15 @@ import keras.backend as K
 
 
 # TODO what does the MS-postfix mean?
-def build_model():
+def build_model(input_size, output_size):
     # Building model
-    input = Input(shape=(2048,))
+    input = Input(shape=(input_size,))
 
-    hidden = Dense(2048,
+    hidden = Dense(input_size,
               activation='relu',
               kernel_regularizer=regularizers.l2(0.0005))(input)
     # hidden = Dropout(0.3)(hidden)
-    output = Dense(2048,
+    output = Dense(output_size,
                    activation='relu',
                    kernel_regularizer=regularizers.l2(0.0005))(hidden)
 

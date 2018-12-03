@@ -14,8 +14,8 @@ class DataProvider:
     def __init__(self, validation_size, test_size):
         conn = psycopg2.connect(database="video_article_retrieval", user="postgres")
         video_cursor = conn.cursor()  # for the videos
-        video_cursor.execute(
-            "SELECT id, platform, embedding FROM videos WHERE resnet_status='Success' ORDER BY random()")
+        video_cursor.execute("SELECT id, platform, resnet_2048, soundnet_1024 FROM videos "
+                             "WHERE resnet_status='Success' AND soundnet_status='Success' ORDER BY random()")
 
         x, y = self.get_1_to_1_random(video_cursor, conn)
 
@@ -47,17 +47,23 @@ class DataProvider:
         article_cursor = conn.cursor()  # for the articles
         x = list()
         y = list()
-        for index, (video_id, platform, compressed_video_feature) in zip(range(max_size), video_cursor):
+        for index, (video_id, platform, resnet_compressed, soundnet_compressed) in zip(range(max_size), video_cursor):
             # get one random article that embeds this video
             article_cursor.execute(
-                "SELECT a.w2v_2048 FROM article_videos av  "
+                "SELECT a.w2v_2048, a.bow_2048 FROM article_videos av  "
                 "JOIN articles a ON av.source_url = a.source_url "
                 "WHERE (av.video_id, av.platform) = (%s,%s) ORDER BY random() LIMIT 1",
                 [video_id, platform])
-            compressed_article_feature, = article_cursor.fetchone()
+            w2v_compressed, bow_compressed = article_cursor.fetchone()
 
-            article_feature = np.frombuffer(zlib.decompress(compressed_article_feature), np.float32)
-            video_feature = np.frombuffer(zlib.decompress(compressed_video_feature), np.float32) # np.random.rand(2048)
+            article_feature = np.concatenate([
+                np.frombuffer(zlib.decompress(w2v_compressed), np.float32),
+                np.frombuffer(zlib.decompress(bow_compressed), np.float32)
+            ])
+            video_feature = np.concatenate([
+                np.frombuffer(zlib.decompress(resnet_compressed), np.float32),
+                np.frombuffer(zlib.decompress(soundnet_compressed), np.float32)
+            ])  # np.random.rand(2048)
             x.append(article_feature)
             y.append(video_feature)
 

@@ -5,7 +5,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
-config.gpu_options.per_process_gpu_memory_fraction = 0.2
+# config.gpu_options.per_process_gpu_memory_fraction = 0.1
 sess = tf.Session(config=config)
 import keras.backend as K
 K.set_session(sess)

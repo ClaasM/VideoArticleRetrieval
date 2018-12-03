@@ -30,8 +30,11 @@ def run():
     # tensorboard_logger = TensorBoard(log_dir="/home/claas/logs/%d" % time.time())
     ranking_callback = RankingCallback(data_provider.ranking_validation_x,
                                        data_provider.ranking_validation_y,)
-    # define word2visualvec model
-    model = build_model()
+    # define model
+    model = build_model(
+        data_provider.train_validation_x.shape[1],
+        data_provider.train_validation_y.shape[1]
+    )
 
     print("Done building model")
     model.fit(x=data_provider.train_validation_x,
