@@ -23,6 +23,7 @@ from keras.applications.imagenet_utils import preprocess_input
 # os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 """
+TODO
 This might be useful for other models:
 layer_name = 'avg_pool'
 intermediate_layer_model = Model(inputs=model.input, outputs=model.get_layer(layer_name).output)
@@ -86,7 +87,7 @@ def run():
             if compressed_features is not None:
                 # Insert embedding and update the classification status
                 update_cursor.execute(
-                    "UPDATE videos SET resnet_status = 'Success', embedding=%s WHERE id=%s AND platform=%s",
+                    "UPDATE videos SET resnet_status = 'Success', resnet_2048=%s WHERE id=%s AND platform=%s",
                     [compressed_features, id, platform])
             else:
                 update_cursor.execute(

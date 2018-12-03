@@ -226,13 +226,13 @@ def conv3d_bn(x,
     return x
 
 
-def Inception_Inflated3d(include_top=True,
-                         weights=None,
-                         input_tensor=None,
-                         input_shape=None,
-                         dropout_prob=0.0,
-                         endpoint_logit=True,
-                         classes=400):
+def InceptionI3D(include_top=True,
+                 weights=None,
+                 input_tensor=None,
+                 input_shape=None,
+                 dropout_prob=0.0,
+                 endpoint_logit=True,
+                 classes=400):
     """Instantiates the Inflated 3D Inception v1 architecture.
     Optionally loads weights pre-trained
     on Kinetics. Note that when using TensorFlow,

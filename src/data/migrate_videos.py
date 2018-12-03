@@ -6,8 +6,9 @@ import psycopg2
 
 data_connection = psycopg2.connect(database="gdelt_social_video", user="postgres")
 data_cursor = data_connection.cursor()
-# We only want videos that have been crawled successfully
-data_cursor.execute("SELECT id, platform FROM videos WHERE crawling_status='Success'")
+# We only want videos that have been crawled successfully, and we exclude twitter.
+data_cursor.execute("SELECT id, platform FROM videos "
+                    "WHERE crawling_status='Success' AND platform='facebook' OR platform='youtube'")
 videos = data_cursor.fetchall()
 
 # Connect to the database where the results will be saved

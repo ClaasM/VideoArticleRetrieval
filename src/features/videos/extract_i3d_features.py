@@ -1,7 +1,7 @@
-import cv2
 import numpy as np
-import tensorflow as tf
+import cv2
 
+from src.features.videos.kineticsI3D import InceptionI3D
 
 """
 Helper function to show the cropped images from numpy array.
@@ -11,14 +11,7 @@ def animate(images):
   with open('./animation.gif','rb') as f:
       display.display(display.Image(data=f.read(), height=300))
 """
-
-def crop_center_square(frame):
-  y, x = frame.shape[0:2]
-  min_dim = min(y, x)
-  start_x = (x // 2) - (min_dim // 2)
-  start_y = (y // 2) - (min_dim // 2)
-  return frame[start_y:start_y+min_dim,start_x:start_x+min_dim]
-
+"""
 def load_video(path, max_frames=0, resize=(224, 224)):
     cap = cv2.VideoCapture(path)
     frames = []
@@ -39,7 +32,7 @@ def load_video(path, max_frames=0, resize=(224, 224)):
     return np.array(frames) / 255.0
 
 
-sample_video = load_video(fetch_ucf_video("v_CricketShot_g04_c02.avi"))
+# sample_video = load_video(fetch_ucf_video("v_CricketShot_g04_c02.avi"))
 
 print("sample_video is a numpy array of shape %s." % str(sample_video.shape))
 
@@ -62,16 +55,22 @@ with tf.Graph().as_default():
 print("Top 5 actions:")
 for i in np.argsort(ps)[::-1][:5]:
   print("%-22s %.2f%%" % (i, ps[i] * 100))
+"""
+
+def crop_center_square(frame):
+  y, x = frame.shape[0:2]
+  min_dim = min(y, x)
+  start_x = (x // 2) - (min_dim // 2)
+  start_y = (y // 2) - (min_dim // 2)
+  return frame[start_y:start_y+min_dim,start_x:start_x+min_dim]
+
 
 '''
 Loads pretrained model of I3d Inception architecture for the paper: 'https://arxiv.org/abs/1705.07750'
 Evaluates a RGB and Flow sample similar to the paper's github repo: 'https://github.com/deepmind/kinetics-i3d'
 '''
 
-import numpy as np
 import argparse
-
-from i3d_inception import Inception_Inflated3d
 
 NUM_FRAMES = 79
 FRAME_HEIGHT = 224
@@ -86,18 +85,34 @@ SAMPLE_DATA_PATH = {
     'flow': 'data/v_CricketShot_g04_c01_flow.npy'
 }
 
-LABEL_MAP_PATH = 'data/label_map.txt'
+def load_video(path, max_frames=0, resize=(224, 224)):
+    cap = cv2.VideoCapture(path)
+    frames = []
+    try:
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+            frame = crop_center_square(frame)
+            frame = cv2.resize(frame, resize)
+            frame = frame[:, :, [2, 1, 0]]
+            frames.append(frame)
 
+            if len(frames) == max_frames:
+                break
+    finally:
+        cap.release()
+    return np.array(frames) / 255.0
 
+# TODO set image_data_format='channels_last
 def main(args):
     # load the kinetics classes
-    kinetics_classes = [x.strip() for x in open(LABEL_MAP_PATH, 'r')]
 
     if args.eval_type in ['rgb', 'joint']:
         if args.no_imagenet_pretrained:
             # build model for RGB data
             # and load pretrained weights (trained on kinetics dataset only)
-            rgb_model = Inception_Inflated3d(
+            rgb_model = InceptionI3D(
                 include_top=True,
                 weights='rgb_kinetics_only',
                 input_shape=(NUM_FRAMES, FRAME_HEIGHT, FRAME_WIDTH, NUM_RGB_CHANNELS),
@@ -105,7 +120,7 @@ def main(args):
         else:
             # build model for RGB data
             # and load pretrained weights (trained on imagenet and kinetics dataset)
-            rgb_model = Inception_Inflated3d(
+            rgb_model = InceptionI3D(
                 include_top=True,
                 weights='rgb_imagenet_and_kinetics',
                 input_shape=(NUM_FRAMES, FRAME_HEIGHT, FRAME_WIDTH, NUM_RGB_CHANNELS),
@@ -121,7 +136,7 @@ def main(args):
         if args.no_imagenet_pretrained:
             # build model for optical flow data
             # and load pretrained weights (trained on kinetics dataset only)
-            flow_model = Inception_Inflated3d(
+            flow_model = InceptionI3D(
                 include_top=True,
                 weights='flow_kinetics_only',
                 input_shape=(NUM_FRAMES, FRAME_HEIGHT, FRAME_WIDTH, NUM_FLOW_CHANNELS),
@@ -129,7 +144,7 @@ def main(args):
         else:
             # build model for optical flow data
             # and load pretrained weights (trained on imagenet and kinetics dataset)
-            flow_model = Inception_Inflated3d(
+            flow_model = InceptionI3D(
                 include_top=True,
                 weights='flow_imagenet_and_kinetics',
                 input_shape=(NUM_FRAMES, FRAME_HEIGHT, FRAME_WIDTH, NUM_FLOW_CHANNELS),
