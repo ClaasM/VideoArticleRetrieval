@@ -2,7 +2,6 @@
 TODO maybe make this a separate package
 """
 import time
-
 import random
 
 from keras.callbacks import Callback
@@ -44,18 +43,30 @@ class RankingCallback(Callback):
 
 
 def ranking_validation(y_predicted, y_true):
-    similarities = distance.cdist(y_predicted, y_true, 'cosine')
-    ranks = np.zeros(similarities.shape[0])
-    for i in range(similarities.shape[0]):
-        # Sort similarities, but keep indices not values
-        indices_sorted = np.argsort(similarities[i])
-        # The index of i is our rank.
-        ranks[i] = np.where(indices_sorted == i)[0][0]
+    # For this model, should be around X
+    result = {
+        "r1": list(),
+        "r5": list(),
+        "r10": list(),
+        "mean_rank": list(),
+        "median_rank": list(),
+    }
+    for i in range(0, len(y_predicted) - 100, 100):
+        similarities = distance.cdist(y_predicted[i:i + 100], y_true[i:i + 100], 'cosine')
+        ranks = np.zeros(similarities.shape[0])
+        for i in range(similarities.shape[0]):
+            # Sort similarities, but keep indices not values
+            indices_sorted = np.argsort(similarities[i])
+            # The index of i is our rank.
+            ranks[i] = np.where(indices_sorted == i)[0][0]
 
-    result = dict()
-    result["r1"] = 100.0 * len(np.where(ranks < 1)[0]) / len(ranks)
-    result["r5"] = 100.0 * len(np.where(ranks < 5)[0]) / len(ranks)
-    result["r10"] = 100.0 * len(np.where(ranks < 10)[0]) / len(ranks)
-    result["median_rank"] = np.floor(np.median(ranks)) + 1
-    result["mean_rank"] = ranks.mean() + 1
+        result["r1"].append(len(np.where(ranks < 1)[0]) / len(ranks))
+        result["r5"].append(len(np.where(ranks < 5)[0]) / len(ranks))
+        result["r10"].append(len(np.where(ranks < 10)[0]) / len(ranks))
+        result["median_rank"].append(np.floor(np.median(ranks)) + 1)
+        result["mean_rank"].append(ranks.mean() + 1)
+
+    for key in result:
+        result[key] = sum(result[key]) / len(result[key])
+
     return result

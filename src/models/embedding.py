@@ -12,11 +12,11 @@ def build_model(input_size, output_size):
 
     hidden = Dense(input_size,
               activation='relu',
-              kernel_regularizer=regularizers.l2(0.0005))(input)
+              kernel_regularizer=regularizers.l2(0.0003))(input)
     # hidden = Dropout(0.3)(hidden)
     output = Dense(output_size,
                    activation='relu',
-                   kernel_regularizer=regularizers.l2(0.0005))(hidden)
+                   kernel_regularizer=regularizers.l2(0.0003))(hidden)
 
     model = Model(inputs=[input], outputs=output)
     # model.summary()
@@ -28,6 +28,17 @@ def build_model(input_size, output_size):
 
     return model
 
+
+"""
+Experiments with soundnet:
+(new data provider)
+Ls      Train   Test
+0.0005  
+0.0003  
+0.0001  
+
+0.0005 has better train loss AND validation loss but way worse validation median rank
+"""
 """
 Experiments with word2vec
 

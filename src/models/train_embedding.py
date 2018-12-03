@@ -1,3 +1,4 @@
+import pickle
 import time
 
 import os
@@ -23,26 +24,31 @@ EPOCHS = 100
 TEST_SIZE = 1000
 VALIDATION_SIZE = 1000
 
+DATA_CACHE = os.environ['MODEL_PATH'] + "/data_provider.pickle"
+
 
 def run():
+    # During parameter tuning, this makes things a bit faster:
+    #data_provider = DataProvider(VALIDATION_SIZE, TEST_SIZE)
+    #pickle.dump(data_provider, open(DATA_CACHE, "wb+"))
+    data_provider = pickle.load(open(DATA_CACHE, "rb"))
 
-    data_provider = DataProvider(VALIDATION_SIZE, TEST_SIZE)
     # tensorboard_logger = TensorBoard(log_dir="/home/claas/logs/%d" % time.time())
-    ranking_callback = RankingCallback(data_provider.ranking_validation_x,
-                                       data_provider.ranking_validation_y,)
+    ranking_callback = RankingCallback(data_provider.validation_x,
+                                       data_provider.validation_y, )
     # define model
     model = build_model(
-        data_provider.train_validation_x.shape[1],
-        data_provider.train_validation_y.shape[1]
+        data_provider.train_x.shape[1],
+        data_provider.train_y.shape[1]
     )
 
     print("Done building model")
-    model.fit(x=data_provider.train_validation_x,
-              y=data_provider.train_validation_y,
+    model.fit(x=data_provider.train_x,
+              y=data_provider.train_y,
               batch_size=BATCH_SIZE,
               epochs=EPOCHS,
-              callbacks=[ranking_callback], # ranking_callback
-              validation_split=0.1)
+              callbacks=[ranking_callback],  # ranking_callback
+              validation_data=(data_provider.validation_x, data_provider.validation_y))
 
     # TODO validate model on best epoch with data_provider.ranking_test_x
     # print(test_result)

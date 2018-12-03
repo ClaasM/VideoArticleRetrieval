@@ -9,7 +9,6 @@ import numpy as np
 import psycopg2
 from sklearn.preprocessing import StandardScaler
 
-
 class DataProvider:
     def __init__(self, validation_size, test_size):
         conn = psycopg2.connect(database="video_article_retrieval", user="postgres")
@@ -21,15 +20,15 @@ class DataProvider:
 
         x = StandardScaler().fit_transform(x, y)
 
-        self.ranking_validation_x = np.array(x[:validation_size])
-        self.ranking_validation_y = np.array(y[:validation_size])
+        self.validation_x = np.array(x[:validation_size])
+        self.validation_y = np.array(y[:validation_size])
 
-        self.ranking_test_x = np.array(x[validation_size:validation_size + test_size])
-        self.ranking_test_y = np.array(y[validation_size:validation_size + test_size])
+        self.test_x = np.array(x[validation_size:validation_size + test_size])
+        self.test_y = np.array(y[validation_size:validation_size + test_size])
 
         # The data used for training (and used for testing by keras)
-        self.train_validation_x = np.array(x[validation_size + test_size:])
-        self.train_validation_y = np.array(y[validation_size + test_size:])
+        self.train_x = np.array(x[validation_size + test_size:])
+        self.train_y = np.array(y[validation_size + test_size:])
 
         """
         TODO delete if it remains unused
@@ -49,13 +48,13 @@ class DataProvider:
         y = list()
         for index, (video_id, platform, resnet_compressed, soundnet_compressed) in zip(range(max_size), video_cursor):
             # get one random article that embeds this video
+
             article_cursor.execute(
                 "SELECT a.w2v_2048, a.bow_2048 FROM article_videos av  "
                 "JOIN articles a ON av.source_url = a.source_url "
                 "WHERE (av.video_id, av.platform) = (%s,%s) ORDER BY random() LIMIT 1",
                 [video_id, platform])
             w2v_compressed, bow_compressed = article_cursor.fetchone()
-
             article_feature = np.concatenate([
                 np.frombuffer(zlib.decompress(w2v_compressed), np.float32),
                 np.frombuffer(zlib.decompress(bow_compressed), np.float32)
