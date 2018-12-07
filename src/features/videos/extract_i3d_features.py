@@ -1,14 +1,9 @@
-import time
+import zlib
 from multiprocessing.pool import Pool
 
-import psycopg2
-import zlib
-
-import os
-import sys
-
-import numpy as np
 import cv2
+import numpy as np
+import psycopg2
 
 from src.data.videos import video as video_helper
 from src.visualization.console import CrawlingProgress
@@ -21,56 +16,6 @@ def animate(images):
   with open('./animation.gif','rb') as f:
       display.display(display.Image(data=f.read(), height=300))
 """
-"""
-def load_video(path, max_frames=0, resize=(224, 224)):
-    cap = cv2.VideoCapture(path)
-    frames = []
-    try:
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                break
-            frame = crop_center_square(frame)
-            frame = cv2.resize(frame, resize)
-            frame = frame[:, :, [2, 1, 0]]
-            frames.append(frame)
-
-            if len(frames) == max_frames:
-                break
-    finally:
-        cap.release()
-    return np.array(frames) / 255.0
-
-
-# sample_video = load_video(fetch_ucf_video("v_CricketShot_g04_c02.avi"))
-
-print("sample_video is a numpy array of shape %s." % str(sample_video.shape))
-
-# Run the i3d model on the video and print the top 5 actions.
-
-# First add an empty dimension to the sample video as the model takes as input
-# a batch of videos.
-model_input = np.expand_dims(sample_video, axis=0)
-
-# Create the i3d model and get the action probabilities.
-with tf.Graph().as_default():
-  i3d = hub.Module("https://tfhub.dev/deepmind/i3d-kinetics-400/1")
-  input_placeholder = tf.placeholder(shape=(None, None, 224, 224, 3), dtype=tf.float32)
-  logits = i3d(input_placeholder)
-  probabilities = tf.nn.softmax(logits)
-  with tf.train.MonitoredSession() as session:
-    [ps] = session.run(probabilities,
-                       feed_dict={input_placeholder: model_input})
-
-print("Top 5 actions:")
-for i in np.argsort(ps)[::-1][:5]:
-  print("%-22s %.2f%%" % (i, ps[i] * 100))
-"""
-'''
-Loads pretrained model of I3d Inception architecture for the paper: 'https://arxiv.org/abs/1705.07750'
-Evaluates a RGB and Flow sample similar to the paper's github repo: 'https://github.com/deepmind/kinetics-i3d'
-'''
-
 NUM_FRAMES = 64
 NUM_SEGMENTS = 10
 FRAME_HEIGHT = 224
@@ -132,7 +77,7 @@ def run():
     conn = psycopg2.connect(database="video_article_retrieval", user="postgres")
     video_cursor = conn.cursor()
     update_cursor = conn.cursor()
-    video_cursor.execute("SELECT id, platform FROM videos WHERE i3d_rgb_status<>'Success' AND platform='facebook'")
+    video_cursor.execute("SELECT id, platform FROM videos WHERE i3d_rgb_status<>'Success' AND resnet_status='Success'")
     videos = video_cursor.fetchall()
     crawling_progress = CrawlingProgress(len(videos), update_every=100)
     # 4 works best. Too many and each worker doesn't have the GPU memory it needs
