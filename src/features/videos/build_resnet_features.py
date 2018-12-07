@@ -61,6 +61,7 @@ def process(video):
             count += 1
         else:
             # Reached the end of the video
+            cap.release()
             break
 
     if len(images) > MIN_IMAGES:
@@ -86,10 +87,11 @@ def run():
     # 4 works best. Too many and each worker doesn't have the GPU memory it needs
     with Pool(4, initializer=init_worker) as pool:
         for status, id, platform, compressed_features in pool.imap_unordered(process, videos, chunksize=10):
+            print()
             if status == 'Success':
                 # Insert embedding and update the classification status
                 update_cursor.execute(
-                    "UPDATE videos SET resnet_status = 'Success', resnet_2048=%s WHERE id=%s AND platform=%s",
+                    "UPDATE videos SET resnet_status = 'Success', resnet_2048 = %s WHERE id=%s AND platform=%s",
                     [compressed_features, id, platform])
             else:
                 update_cursor.execute(

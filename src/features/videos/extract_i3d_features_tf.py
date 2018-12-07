@@ -43,7 +43,7 @@ def run():
         shape=(1, _SAMPLE_VIDEO_FRAMES, _IMAGE_SIZE, _IMAGE_SIZE, 3))
 
     with tf.variable_scope('RGB'):
-        rgb_model = i3d.InceptionI3d(
+        rgb_model = InceptionI3d(
             NUM_CLASSES, spatial_squeeze=True, final_endpoint='Logits')
         rgb_logits, _ = rgb_model(
             rgb_input, is_training=False, dropout_keep_prob=1.0)

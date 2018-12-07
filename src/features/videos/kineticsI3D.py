@@ -1,3 +1,4 @@
+# TODO add source
 """Inception-v1 Inflated 3D ConvNet used for Kinetics CVPR paper.
 
 The model is introduced in:
@@ -11,7 +12,14 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import os
-
+# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+import tensorflow as tf
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+config.gpu_options.per_process_gpu_memory_fraction = 0.24
+sess = tf.Session(config=config)
+import keras.backend as K
+K.set_session(sess)
 import warnings
 
 import numpy as np
@@ -306,6 +314,7 @@ def InceptionI3D(include_top=True,
 
     if input_tensor is None:
         img_input = Input(shape=input_shape)
+
     else:
         if not K.is_keras_tensor(input_tensor):
             img_input = Input(tensor=input_tensor, shape=input_shape)

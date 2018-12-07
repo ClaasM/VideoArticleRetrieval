@@ -35,7 +35,13 @@ CREATE TABLE IF NOT EXISTS videos
 
   object_detection_yolo_status TEXT DEFAULT 'Not Processed',
   resnet_status                TEXT DEFAULT 'Not Processed',
-  embedding                    BYTEA,
+  restnet_2048                 BYTEA,
+  soundnet_status              TEXT DEFAULT 'Not Processed',
+  soundnet_1024                BYTEA,
+  i3d_rgb_status               TEXT DEFAULT 'Not Processed',
+  i3d_rgb_1024                 BYTEA,
+  i3d_flow_status              TEXT DEFAULT 'Not Processed',
+  i3d_flow_1024                BYTEA,
   PRIMARY KEY (platform, id)
 );
 

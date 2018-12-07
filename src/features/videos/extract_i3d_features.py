@@ -1,7 +1,17 @@
+import time
+from multiprocessing.pool import Pool
+
+import psycopg2
+import zlib
+
+import os
+import sys
+
 import numpy as np
 import cv2
 
-from src.features.videos.kineticsI3D import InceptionI3D
+from src.data.videos import video as video_helper
+from src.visualization.console import CrawlingProgress
 
 """
 Helper function to show the cropped images from numpy array.
@@ -56,138 +66,90 @@ print("Top 5 actions:")
 for i in np.argsort(ps)[::-1][:5]:
   print("%-22s %.2f%%" % (i, ps[i] * 100))
 """
-
-def crop_center_square(frame):
-  y, x = frame.shape[0:2]
-  min_dim = min(y, x)
-  start_x = (x // 2) - (min_dim // 2)
-  start_y = (y // 2) - (min_dim // 2)
-  return frame[start_y:start_y+min_dim,start_x:start_x+min_dim]
-
-
 '''
 Loads pretrained model of I3d Inception architecture for the paper: 'https://arxiv.org/abs/1705.07750'
 Evaluates a RGB and Flow sample similar to the paper's github repo: 'https://github.com/deepmind/kinetics-i3d'
 '''
 
-import argparse
-
-NUM_FRAMES = 79
+NUM_FRAMES = 64
+NUM_SEGMENTS = 10
 FRAME_HEIGHT = 224
 FRAME_WIDTH = 224
 NUM_RGB_CHANNELS = 3
 NUM_FLOW_CHANNELS = 2
 
-NUM_CLASSES = 400
 
-SAMPLE_DATA_PATH = {
-    'rgb': 'data/v_CricketShot_g04_c01_rgb.npy',
-    'flow': 'data/v_CricketShot_g04_c01_flow.npy'
-}
+def init_worker():
+    # Need to import it here: stackoverflow.com/questions/42504669/keras-tensorflow-and-multiprocessing-in-python
+    from src.features.videos.kineticsI3D import InceptionI3D
+    # initialize the model
+    global rgb_model
+    rgb_model = InceptionI3D(
+        include_top=False,
+        weights='rgb_kinetics_only',
+        input_shape=(NUM_FRAMES, FRAME_HEIGHT, FRAME_WIDTH, NUM_RGB_CHANNELS))
 
-def load_video(path, max_frames=0, resize=(224, 224)):
-    cap = cv2.VideoCapture(path)
-    frames = []
+
+def process(video):
+    id, platform = video
     try:
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                break
-            frame = crop_center_square(frame)
-            frame = cv2.resize(frame, resize)
-            frame = frame[:, :, [2, 1, 0]]
-            frames.append(frame)
+        cap = cv2.VideoCapture(video_helper.get_path(platform, id))
+        frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+        if frame_count < NUM_FRAMES * NUM_SEGMENTS:
+            return "Too few frames", id, platform, None
 
-            if len(frames) == max_frames:
-                break
-    finally:
+        # TODO this differs from approaches in current research
+        # Divide the video into NUM_SEGMENTS segments and take the center NUM_FRAMES frames for analysis.
+        padding_frames = int((frame_count / NUM_SEGMENTS - NUM_FRAMES) / 2)
+        segments = np.zeros((NUM_SEGMENTS, NUM_FRAMES, FRAME_WIDTH, FRAME_HEIGHT, NUM_RGB_CHANNELS))
+        for i in range(NUM_SEGMENTS):
+            # Skip ahead padding_frames
+            for _ in range(padding_frames):
+                cap.read()
+            # Take NUM_FRAMES frames
+            for j in range(NUM_FRAMES):
+                _, frame = cap.read()
+                segments[i][j] = cv2.resize(video_helper.crop_center_square(frame), (FRAME_WIDTH, FRAME_HEIGHT))
+            # Again, skip ahead padding_frames
+            for _ in range(padding_frames):
+                cap.read()
         cap.release()
-    return np.array(frames) / 255.0
 
+        # batch size 5 allows for 4 workers on a 12GB GPU
+        prediction = rgb_model.predict(np.array(segments), batch_size=5)
+        # The model averages next, so I do the same. All NUM_SEGMENTS outputs are then averaged again.
+        mean = prediction.mean(axis=1).mean(axis=0)[0][0]
+        # Compression to reduce memory footprint of sparse vectors
+        return "Success", id, platform, zlib.compress(mean, 9)
+    except Exception as e:
+        return str(e), id, platform, None
+
+
+# TODO in thesis: this is from Learning Joint Embedding with Multimodal Cues for Cross-Modal Video-Text Retrieval
+# TODO maybe use from deepmind repository: https://github.com/deepmind/kinetics-i3d/tree/master/data
 # TODO set image_data_format='channels_last
-def main(args):
-    # load the kinetics classes
-
-    if args.eval_type in ['rgb', 'joint']:
-        if args.no_imagenet_pretrained:
-            # build model for RGB data
-            # and load pretrained weights (trained on kinetics dataset only)
-            rgb_model = InceptionI3D(
-                include_top=True,
-                weights='rgb_kinetics_only',
-                input_shape=(NUM_FRAMES, FRAME_HEIGHT, FRAME_WIDTH, NUM_RGB_CHANNELS),
-                classes=NUM_CLASSES)
-        else:
-            # build model for RGB data
-            # and load pretrained weights (trained on imagenet and kinetics dataset)
-            rgb_model = InceptionI3D(
-                include_top=True,
-                weights='rgb_imagenet_and_kinetics',
-                input_shape=(NUM_FRAMES, FRAME_HEIGHT, FRAME_WIDTH, NUM_RGB_CHANNELS),
-                classes=NUM_CLASSES)
-
-        # load RGB sample (just one example)
-        rgb_sample = np.load(SAMPLE_DATA_PATH['rgb'])
-
-        # make prediction
-        rgb_logits = rgb_model.predict(rgb_sample)
-
-    if args.eval_type in ['flow', 'joint']:
-        if args.no_imagenet_pretrained:
-            # build model for optical flow data
-            # and load pretrained weights (trained on kinetics dataset only)
-            flow_model = InceptionI3D(
-                include_top=True,
-                weights='flow_kinetics_only',
-                input_shape=(NUM_FRAMES, FRAME_HEIGHT, FRAME_WIDTH, NUM_FLOW_CHANNELS),
-                classes=NUM_CLASSES)
-        else:
-            # build model for optical flow data
-            # and load pretrained weights (trained on imagenet and kinetics dataset)
-            flow_model = InceptionI3D(
-                include_top=True,
-                weights='flow_imagenet_and_kinetics',
-                input_shape=(NUM_FRAMES, FRAME_HEIGHT, FRAME_WIDTH, NUM_FLOW_CHANNELS),
-                classes=NUM_CLASSES)
-
-        # load flow sample (just one example)
-        flow_sample = np.load(SAMPLE_DATA_PATH['flow'])
-
-        # make prediction
-        flow_logits = flow_model.predict(flow_sample)
-
-    # produce final model logits
-    if args.eval_type == 'rgb':
-        sample_logits = rgb_logits
-    elif args.eval_type == 'flow':
-        sample_logits = flow_logits
-    else:  # joint
-        sample_logits = rgb_logits + flow_logits
-
-    # produce softmax output from model logit for class probabilities
-    sample_logits = sample_logits[0]  # we are dealing with just one example
-    sample_predictions = np.exp(sample_logits) / np.sum(np.exp(sample_logits))
-
-    sorted_indices = np.argsort(sample_predictions)[::-1]
-
-    print('\nNorm of logits: %f' % np.linalg.norm(sample_logits))
-    print('\nTop classes and probabilities')
-    for index in sorted_indices[:20]:
-        print(sample_predictions[index], sample_logits[index], kinetics_classes[index])
-
-    return
+def run():
+    conn = psycopg2.connect(database="video_article_retrieval", user="postgres")
+    video_cursor = conn.cursor()
+    update_cursor = conn.cursor()
+    video_cursor.execute("SELECT id, platform FROM videos WHERE i3d_rgb_status<>'Success' AND platform='facebook'")
+    videos = video_cursor.fetchall()
+    crawling_progress = CrawlingProgress(len(videos), update_every=100)
+    # 4 works best. Too many and each worker doesn't have the GPU memory it needs
+    with Pool(4, initializer=init_worker) as pool:
+        for status, id, platform, compressed_feature in pool.imap_unordered(process, videos, chunksize=10):
+            if status == 'Success':
+                # Insert embedding and update the classification status
+                update_cursor.execute(
+                    "UPDATE videos SET i3d_rgb_status = 'Success', i3d_rgb_1024 = %s WHERE id=%s AND platform=%s",
+                    [compressed_feature, id, platform])
+            else:
+                update_cursor.execute(
+                    "UPDATE videos SET i3d_rgb_status = %s WHERE id=%s AND platform=%s",
+                    [status, id, platform])
+            conn.commit()
+            crawling_progress.inc()
 
 
 if __name__ == '__main__':
-    # parse arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--eval-type',
-                        help='specify model type. 1 stream (rgb or flow) or 2 stream (joint = rgb and flow).',
-                        type=str, choices=['rgb', 'flow', 'joint'], default='joint')
-
-    parser.add_argument('--no-imagenet-pretrained',
-                        help='If set, load model weights trained only on kinetics dataset. Otherwise, load model weights trained on imagenet and kinetics dataset.',
-                        action='store_true')
-
-    args = parser.parse_args()
-    main(args)
+    run()
