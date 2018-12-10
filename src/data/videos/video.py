@@ -4,9 +4,16 @@ TODO don't copy-paste code from the other project
 
 import os
 
+ENDINGS = {
+    "facebook": "mp4",
+    "twitter": "ts",
+    "youtube": "mp4",
+}
+
 
 def get_path(platform, id):
-    return os.environ["DATA_PATH"] + "/raw/videos/%s/%s.mp4" % (platform, id)
+    return os.environ["DATA_PATH"] + "/raw/videos/%s/%s.%s" % (platform, id, ENDINGS[platform])
+
 
 def crop_center_square(frame):
     y, x = frame.shape[0:2]

@@ -1,6 +1,9 @@
 import csv
 import pickle
 
+from sklearn.preprocessing import StandardScaler
+from sklearn.utils import shuffle
+
 import src
 import zlib
 
@@ -25,14 +28,17 @@ def get_data():
     for w2v_2048, bow_2048, resnet_2048, soundnet_1024, i3d_rgb_1024 in data:
         x.append(np.concatenate([
             w2v_2048,
+            # np.zeros(2048),
             bow_2048
         ]))
         y.append(np.concatenate([
             resnet_2048,
-            soundnet_1024,
-            i3d_rgb_1024,
+            #soundnet_1024,
+            #i3d_rgb_1024,
         ]))
 
+    x, y = shuffle(x, y)
+    x = StandardScaler().fit_transform(x, y)
 
     data_split = dict()
     data_split["validation_x"] = np.array(x[:VALIDATION_SIZE])

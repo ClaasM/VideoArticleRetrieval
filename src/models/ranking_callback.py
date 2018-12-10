@@ -6,9 +6,12 @@ import random
 
 from keras.callbacks import Callback
 import numpy as np
+from keras.losses import mean_squared_error
 from scipy.spatial import distance
 import tensorflow as tf
 import keras.backend as K
+
+from src.models.embedding import cosine_proximity
 
 
 class RankingCallback(Callback):
@@ -24,6 +27,8 @@ class RankingCallback(Callback):
 
     def on_epoch_end(self, epoch, logs=None):
         y_predicted = self.model.predict(self.ranking_validation_x)
+        print(K.eval(K.mean(cosine_proximity(self.ranking_validation_y, y_predicted))))
+
         ranks = ranking_validation(y_predicted, self.ranking_validation_y)
 
         # Logging stuff.
@@ -51,8 +56,18 @@ def ranking_validation(y_predicted, y_true):
         "mean_rank": list(),
         "median_rank": list(),
     }
+
+    val_losses = []
     for i in range(0, len(y_predicted) - 100, 100):
-        similarities = distance.cdist(y_predicted[i:i + 100], y_true[i:i + 100], 'cosine')
+        """
+        This is too slow.
+        similarities = np.array([
+            K.eval(cosine_proximity(np.array([y_predicted[i + j]]), np.array(y_true[i:i + 100]))) for j in range(100)
+        ])
+        """
+        similarities = distance.cdist(y_predicted[i:i + 100], y_true[i:i + 100], 'cosine')  # sqeuclidean
+        # Scikit adds 1 to the cosine distance (s.t. 0 is perfect)
+        val_losses.append(np.mean([similarities[j][j] for j in range(100)]) - 1)
         ranks = np.zeros(similarities.shape[0])
         for i in range(similarities.shape[0]):
             # Sort similarities, but keep indices not values
@@ -69,4 +84,5 @@ def ranking_validation(y_predicted, y_true):
     for key in result:
         result[key] = sum(result[key]) / len(result[key])
 
+    result["val_loss"] = np.mean(val_losses)
     return result

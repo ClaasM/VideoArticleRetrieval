@@ -11,7 +11,8 @@ scikit-image
 # Careful not to overwrite tensorflow on the Server!
 # tensorflow==1.4.0
 # tensorflow-gpu==1.1.0
-keras==2.1.5
+keras
+tensorflow
 opencv-python
 h5py
 imgaug
