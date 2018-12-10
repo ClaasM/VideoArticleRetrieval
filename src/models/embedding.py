@@ -1,3 +1,11 @@
+"""
+import tensorflow as tf
+from keras.backend.tensorflow_backend import set_session
+config = tf.ConfigProto()
+config.gpu_options.per_process_gpu_memory_fraction = 0.1
+set_session(tf.Session(config=config))
+"""
+
 from keras.layers import Dense, Dropout, Input, regularizers
 from keras.losses import mean_squared_error
 from keras.models import Model
@@ -8,16 +16,16 @@ import keras.backend as K
 # TODO what does the MS-postfix mean?
 def build_model(input_size, output_size):
     # Building model
-    print("Input size: %d, Output size: %d")
+    print("Input size: %d, Output size: %d" % (input_size, output_size))
     input = Input(shape=(input_size,))
 
     hidden = Dense(input_size,
-              activation='relu',
-              kernel_regularizer=regularizers.l2(0.0001))(input)
-    # hidden = Dropout(0.3)(hidden)
-    output = Dense(output_size,
                    activation='relu',
-                   kernel_regularizer=regularizers.l2(0.0001))(hidden)
+                   kernel_regularizer=regularizers.l2(0.01))(input)
+    # hidden = Dropout(0.3)(hidden)
+    output = Dense(max(output_size, input_size),
+                   activation='relu',
+                   kernel_regularizer=regularizers.l2(0.01))(hidden)
 
     model = Model(inputs=[input], outputs=output)
     # model.summary()
@@ -90,8 +98,6 @@ With regularization 0.0005/0.0003 the best median rank is 400 both times.
 
 TODO put this into the thesis?
 """
-
-
 
 # model.load_weights(fname)
 # model.to_json()

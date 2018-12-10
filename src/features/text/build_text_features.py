@@ -4,6 +4,8 @@ Reads (article_id, [tokens]) from tokens.pickle and writes:
 (article_id, bow)
 """
 import json
+import sys
+
 import os
 import pickle
 import psycopg2

@@ -1,0 +1,13 @@
+SELECT v.id,
+       v.resnet_2048,
+       v.soundnet_1024,
+       v.i3d_rgb_1024,
+       a.w2v_2048,
+       a.bow_2048
+FROM articles a
+       JOIN article_videos av ON a.source_url = av.source_url
+       JOIN videos v ON v.id = av.video_id
+WHERE v.resnet_status = 'Success'
+  AND v.soundnet_status = 'Success'
+  AND v.i3d_rgb_status = 'Success'
+ORDER BY v.id
