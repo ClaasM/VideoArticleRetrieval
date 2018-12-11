@@ -33,8 +33,8 @@ def get_data():
         ]))
         y.append(np.concatenate([
             resnet_2048,
-            #soundnet_1024,
-            #i3d_rgb_1024,
+            # soundnet_1024,
+            # i3d_rgb_1024,
         ]))
 
     x, y = shuffle(x, y)
@@ -58,6 +58,7 @@ def train():
 
     ranking_callback = RankingCallback(data["validation_x"],
                                        data["validation_y"])
+
     # define model
     model = build_model(
         data["train_x"].shape[1],
