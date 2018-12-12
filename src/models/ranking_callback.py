@@ -25,11 +25,6 @@ class RankingCallback(Callback):
     def on_epoch_end(self, epoch, logs=None):
         y_predicted = self.model.predict(self.ranking_validation_x)
         ranks = ranking_validation(y_predicted, self.ranking_validation_y)
-
-        # TODO weirdly, different methods of calculating loss still result in different values.
-        # validation_loss = K.eval(K.mean(cosine_proximity(self.ranking_validation_y, y_predicted)))
-        # ranks["val_loss"] = validation_loss # logs["val_loss"]
-
         # Regularization is applied to training loss, so we also need to apply it to validation loss.
         ranks["loss"] += self.get_reg_term()
 
