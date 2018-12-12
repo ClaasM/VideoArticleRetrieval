@@ -33,6 +33,7 @@ def get_data():
         ]))
         y.append(np.concatenate([
             resnet_2048,
+            np.zeros(2048)
             # soundnet_1024,
             # i3d_rgb_1024,
         ]))
@@ -52,17 +53,19 @@ def get_data():
 
 def train():
     data = get_data()
+    regularization = 0.0005
 
     from src.models.embedding import build_model
     from src.models.ranking_callback import RankingCallback
 
     ranking_callback = RankingCallback(data["validation_x"],
-                                       data["validation_y"])
+                                       data["validation_y"], regularization)
 
     # define model
     model = build_model(
         data["train_x"].shape[1],
-        data["train_y"].shape[1]
+        data["train_y"].shape[1],
+        regularization
     )
 
     model.fit(x=data["train_x"],

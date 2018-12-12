@@ -21,12 +21,25 @@ class ValidationCallback(Callback):
     def on_epoch_end(self, epoch, logs=None):
         # What am I missing in this loss calculation that keras is doing?
         validation_y_predicted = self.model.predict(self.validation_x)
+
+        # Compute regularization term for each layer
+        weights = self.model.trainable_weights
+        reg_term = 0
+        for i, w in enumerate(weights):
+            if i % 2 == 0:  # weights from layer i // 2
+                w_f = K.flatten(w)
+                reg_term += 0.01 * K.sum(K.square(w_f))
+
+        mse_loss = K.mean(mean_squared_error(self.validation_y, validation_y_predicted))
+        loss = float(K.eval(mse_loss + reg_term))
+
         print("%.4f" % K.eval(K.mean(mean_squared_error(self.validation_y, validation_y_predicted))))
+        print("%.4f" % loss)
 
 
 input = Input(shape=(1024,))
-hidden = Dense(1024, kernel_regularizer=regularizers.l2())(input)
-output = Dense(1024, kernel_regularizer=regularizers.l2())(hidden)
+hidden = Dense(1024, kernel_regularizer=regularizers.l2(0.01))(input)
+output = Dense(1024, kernel_regularizer=regularizers.l2(0.01))(hidden)
 
 model = Model(inputs=[input], outputs=output)
 

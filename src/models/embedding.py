@@ -15,18 +15,18 @@ import tensorflow as tf
 import numpy as np
 
 
-def build_model(input_size, output_size):
+def build_model(input_size, output_size, regularization):
     # Building model
     print("Input size: %d, Output size: %d" % (input_size, output_size))
     input = Input(shape=(input_size,))
 
     hidden = Dense(max(output_size, input_size),
                    activation='relu',
-                   kernel_regularizer=regularizers.l2(0.00005))(input)
+                   kernel_regularizer=regularizers.l2(regularization))(input)
     # hidden = Dropout(0.3)(hidden)
     output = Dense(output_size,
                    activation='relu',
-                   kernel_regularizer=regularizers.l2(0.00005))(hidden)
+                   kernel_regularizer=regularizers.l2(regularization))(hidden)
 
     model = Model(inputs=[input], outputs=output)
     # model.summary()
