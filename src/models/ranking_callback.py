@@ -66,12 +66,6 @@ def ranking_validation(y_predicted, y_true):
 
     for i in range(0, len(y_predicted) - 100, 100):
         # TODO put each step in a separate function
-        """
-        This is too slow.
-        similarities = np.array([
-            K.eval(cosine_proximity(np.array([y_predicted[i + j]]), np.array(y_true[i:i + 100]))) for j in range(100)
-        ])
-        """
         similarities = distance.cdist(y_predicted[i:i + 100], y_true[i:i + 100], 'cosine')  # sqeuclidean
         # Scikit adds 1 to the cosine distance (s.t. 0 is perfect)
         ranks = np.zeros(similarities.shape[0])

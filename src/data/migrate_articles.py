@@ -1,7 +1,6 @@
 """
 Takes the articles from the dataset and creates a table to store their various analysis/status
 Takes a couple minutes.
-TODO this should be a simple SQL query.
 """
 import psycopg2
 

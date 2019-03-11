@@ -9,7 +9,7 @@ from gensim import corpora
 from gensim.models import LdaModel
 
 from src.features.text import article_tokenizer
-from src.visualization.console import CrawlingProgress
+from src.visualization.console import StatusVisualization
 
 dictionary = corpora.Dictionary.load(os.environ['MODEL_PATH'] + 'articles.dict')
 model = LdaModel.load(os.environ['MODEL_PATH'] + 'articles.lda')
@@ -52,7 +52,7 @@ def run():
     c.execute("SELECT count(1) FROM articles WHERE text_extraction_status='Success'")
     article_count, = c.fetchone()
 
-    crawling_progress = CrawlingProgress(article_count, update_every=1000)
+    crawling_progress = StatusVisualization(article_count, update_every=1000)
     articles_cursor = conn.cursor()
     articles_cursor.execute("SELECT source_url, text FROM articles WHERE text_extraction_status='Success'")
 

@@ -13,6 +13,11 @@ VOCABULARY_FILE = os.environ["DATA_PATH"] + "/interim/articles/vocabulary.pickle
 
 articles = pickle.load(open(TOKENS_FILE, "rb"))
 
+
+print(articles[0])
+
+sys.exit()
+
 """
 dictionary = corpora.Dictionary([tokens for article_id, tokens in articles.items()])
 print(len(dictionary))

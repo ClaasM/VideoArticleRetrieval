@@ -27,15 +27,15 @@ def get_data():
     y = list()
     for w2v_2048, bow_2048, resnet_2048, soundnet_1024, i3d_rgb_1024 in data:
         x.append(np.concatenate([
-            w2v_2048,
-            # np.zeros(2048),
-            bow_2048
+            #w2v_2048,
+            np.zeros(4096),
+            #bow_2048
         ]))
         y.append(np.concatenate([
             resnet_2048,
-            np.zeros(2048)
-            # soundnet_1024,
-            # i3d_rgb_1024,
+            #np.zeros(2048)
+            soundnet_1024,
+            i3d_rgb_1024,
         ]))
 
     x, y = shuffle(x, y)
@@ -53,7 +53,7 @@ def get_data():
 
 def train():
     data = get_data()
-    regularization = 0.0005
+    regularization = 0.0000001
 
     from src.models.embedding import build_model
     from src.models.ranking_callback import RankingCallback

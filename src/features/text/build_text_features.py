@@ -19,7 +19,7 @@ from gensim.models import Word2Vec, KeyedVectors
 import src
 
 # W2V_FILE = os.environ["MODEL_PATH"] + "/word2vec.model"
-from src.visualization.console import CrawlingProgress
+from src.visualization.console import StatusVisualization
 
 VOCABULARY_FILE = os.environ["DATA_PATH"] + "/interim/articles/vocabulary.pickle"
 W2V_FILE = os.environ["MODEL_PATH"] + "/word2vec.model"
@@ -33,6 +33,7 @@ def init_worker():
 
 
 # TODO use doc2bow from the dictionary
+# TODO divide by max
 def count_tokens(tokens):
     token_counter = dict()
     for word in vocabulary:
@@ -73,7 +74,7 @@ def run():
     # avoid loading all articles into memory.
     article_cursor.execute("SELECT id, tokens FROM articles WHERE text_extraction_status='Success'")
 
-    crawling_progress = CrawlingProgress(article_count, update_every=1000)
+    crawling_progress = StatusVisualization(article_count, update_every=1000)
 
     with Pool(8, initializer=init_worker) as pool:
         for status, article_id, compressed_bow, compressed_w2v in pool.imap_unordered(extract_features, article_cursor):

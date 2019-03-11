@@ -11,7 +11,7 @@ import psycopg2
 from gensim import corpora
 
 from src.features.text.article_tokenizer import tokenize
-from src.visualization.console import CrawlingProgress
+from src.visualization.console import StatusVisualization
 
 start = time.time()
 conn = psycopg2.connect(database="video_article_retrieval", user="postgres")
@@ -28,7 +28,7 @@ def tokenize_parallel(article):
 
 
 # Parallel tokenization, since it takes by far the most time
-crawling_progress = CrawlingProgress(article_count, update_every=1000)
+crawling_progress = StatusVisualization(article_count, update_every=1000)
 articles = list()
 token_count = 0
 with Pool(8) as pool:

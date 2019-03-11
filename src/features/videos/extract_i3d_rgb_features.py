@@ -6,7 +6,7 @@ import numpy as np
 import psycopg2
 
 from src.data.videos import video as video_helper
-from src.visualization.console import CrawlingProgress
+from src.visualization.console import StatusVisualization
 
 """
 Helper function to show the cropped images from numpy array.
@@ -79,7 +79,7 @@ def run():
     update_cursor = conn.cursor()
     video_cursor.execute("SELECT id, platform FROM videos WHERE i3d_rgb_status<>'Success' AND resnet_status='Success'")
     videos = video_cursor.fetchall()
-    crawling_progress = CrawlingProgress(len(videos), update_every=100)
+    crawling_progress = StatusVisualization(len(videos), update_every=100)
     # 4 works best. Too many and each worker doesn't have the GPU memory it needs
     with Pool(4, initializer=init_worker) as pool:
         for status, id, platform, compressed_feature in pool.imap_unordered(process, videos, chunksize=10):

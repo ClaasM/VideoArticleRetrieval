@@ -1,6 +1,3 @@
-"""
-TODO this is just copy-pasted from the other project
-"""
 import time
 from datetime import timedelta
 from multiprocessing import Value, Manager
@@ -67,7 +64,6 @@ class SyncedCrawlingProgress:
 
 
 class TablePrinter:
-    # TODO use this in CrawlingProgress
     def __init__(self, header=None):
         if header is None:
             header = ["Col 1", "Col 2", "Col 3"]
@@ -87,8 +83,7 @@ class TablePrinter:
         return string
 
 
-# TODO dry with the other CrawlingProgress
-class CrawlingProgress:
+class StatusVisualization:
     def __init__(self, total_count=1000, update_every=100000):
         # Variables that need to be synced across Threads
         self.count = 0

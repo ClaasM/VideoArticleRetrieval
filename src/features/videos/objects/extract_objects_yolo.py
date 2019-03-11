@@ -16,7 +16,7 @@ import time
 from src.models import darknet_wrapper
 from src.data.videos import video as video_helper
 
-from src.visualization.console import CrawlingProgress
+from src.visualization.console import StatusVisualization
 
 
 def run():
@@ -34,7 +34,7 @@ def run():
 
     print("%d videos left to analyze" % len(videos))
 
-    crawling_progress = CrawlingProgress(len(videos), update_every=10)
+    crawling_progress = StatusVisualization(len(videos), update_every=10)
     for id, platform in videos:
         # print(platform, id)
         # We need to extract the images first

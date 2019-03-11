@@ -9,7 +9,7 @@ from multiprocessing.pool import Pool
 import psycopg2
 
 from src.features.text.article_tokenizer import tokenize
-from src.visualization.console import CrawlingProgress
+from src.visualization.console import StatusVisualization
 
 def tokenize_parallel(article):
     source_url, text = article
@@ -27,7 +27,7 @@ def run():
     article_cursor.execute("SELECT id, text FROM articles WHERE text_extraction_status='Success'")
     # Parallel tokenization, since it takes by far the most time
 
-    crawling_progress = CrawlingProgress(article_count, update_every=1000)
+    crawling_progress = StatusVisualization(article_count, update_every=1000)
     with Pool(8) as pool:
         for article_id, tokens_string in pool.imap_unordered(tokenize_parallel, article_cursor, chunksize=100):
             update_cursor.execute("UPDATE articles SET tokens=%s WHERE id=%s", [tokens_string, article_id])

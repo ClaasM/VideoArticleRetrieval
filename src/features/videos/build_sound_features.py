@@ -10,7 +10,7 @@ import psycopg2
 import tempfile
 
 from src.data.videos import video as video_helper
-from src.visualization.console import CrawlingProgress
+from src.visualization.console import StatusVisualization
 
 
 def extract_audio(video_path):
@@ -61,7 +61,7 @@ def run():
     video_cursor.execute("SELECT id, platform FROM videos WHERE "
                          "soundnet_status<>'Success' AND soundnet_status<>'No Audio' AND resnet_status='Success'")
     videos = video_cursor.fetchall()
-    crawling_progress = CrawlingProgress(len(videos), update_every=100)
+    crawling_progress = StatusVisualization(len(videos), update_every=100)
     # 4 works best. Too many and each worker doesn't have the GPU memory it needs
     with Pool(3, initializer=init_worker) as pool:
         for status, id, platform, compressed_features in pool.imap_unordered(process, videos, chunksize=10):

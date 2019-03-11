@@ -5,7 +5,7 @@ import psycopg2
 from src import util
 from src.data.articles import article as article_helper
 from src.data.articles.boilerpipe import BoilerPipeArticleExtractor
-from src.visualization.console import CrawlingProgress
+from src.visualization.console import StatusVisualization
 
 articles_base_path = os.environ["DATA_PATH"] + "/raw/articles/"
 
@@ -15,7 +15,7 @@ if __name__ == "__main__":
     c.execute("SELECT source_url FROM articles WHERE text_extraction_status = 'Not Tried'")
     extractor = BoilerPipeArticleExtractor()
     article_urls = list(c)
-    crawling_progress = CrawlingProgress(len(article_urls), update_every=100)
+    crawling_progress = StatusVisualization(len(article_urls), update_every=100)
 
     for source_url, in article_urls:
         # TODO there should be a method in common/article
