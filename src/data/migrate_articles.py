@@ -20,5 +20,3 @@ results_cursor = results_connection.cursor()
 for source_url, in articles:
     results_cursor.execute("INSERT INTO articles (source_url)  VALUES (%s)", [source_url])
     results_connection.commit()
-
-# TODO migrate article_videos
