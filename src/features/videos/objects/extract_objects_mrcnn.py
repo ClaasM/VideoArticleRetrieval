@@ -1,10 +1,3 @@
-"""
-Make sure Mask R-CNN is in your python path.
-TODO put this into the documentation
-"""
-
-# TODO every one second, sum up all detected objects (maybe even multiplied by size) and divide by the number of seconds
-
 from src import constants
 
 import os, sys
@@ -55,7 +48,6 @@ for vid in videos:
     #images = [os.environ["DATA_PATH"] + "examples/images/dog_bike.jpg"]
 
     for index, image in enumerate(images):
-        # TODO it might be faster to predict all frames of a video at once
         r = model.detect([image], verbose=1)[0]
 
         n_instances = r['rois'].shape[0]
@@ -72,6 +64,4 @@ for vid in videos:
             score = r['scores'][i]
             label = constants.coco_class_names[class_id]
             print("%d,%d to %d,%d: %s (%.3f)" % (x1, y1, x2, y2, label, score))
-
-# TODO make MaskRCNN code redundant
 

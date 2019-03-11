@@ -75,9 +75,6 @@ def train():
               callbacks=[ranking_callback],
               validation_data=(data["validation_x"], data["validation_y"]))
 
-    # TODO validate model on best epoch with data_provider.ranking_test_x
-
-
 if __name__ == "__main__":
     train()
     # get_data()

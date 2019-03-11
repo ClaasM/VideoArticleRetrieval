@@ -22,13 +22,6 @@ from keras.applications.imagenet_utils import preprocess_input
 # os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # see issue #152
 # os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
-"""
-TODO
-This might be useful for other models:
-layer_name = 'avg_pool'
-intermediate_layer_model = Model(inputs=model.input, outputs=model.get_layer(layer_name).output)
-"""
-
 EVERY_FRAME = 30
 MIN_IMAGES = 10
 # Total: Minimum 300 Frames
@@ -54,7 +47,6 @@ def process(video):
         success, image = cap.read()
         if success:
             if count % EVERY_FRAME == 0:
-                # TODO choose random x/y-location if aspect ratio is not square
                 x = resize(image, (224, 224), mode='constant') * 255
                 x = preprocess_input(x)
                 images.append(x)

@@ -23,7 +23,6 @@ print(data_provider.train_y.shape)
 # (52218, 2048)
 # (52218, 2048)
 
-# TODO also validate mean sums
 print(np.sum(np.mean(data_provider.validation_y, axis=0)))
 print(np.sum(np.mean(data_provider.test_y, axis=0)))
 print(np.sum(np.mean(data_provider.train_y, axis=0)))

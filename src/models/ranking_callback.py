@@ -1,6 +1,3 @@
-"""
-TODO maybe make this a separate package
-"""
 import time
 
 import keras.backend as K
@@ -54,7 +51,7 @@ class RankingCallback(Callback):
 
 def ranking_validation(y_predicted, y_true):
     # For this model, should be around X
-    # TODO dont use lists, use sums
+
     result = {
         "r1": list(),
         "r5": list(),

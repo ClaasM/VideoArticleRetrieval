@@ -57,7 +57,6 @@ def run():
     conn = psycopg2.connect(database="video_article_retrieval", user="postgres")
     video_cursor = conn.cursor()
     update_cursor = conn.cursor()
-    # TODO do for all
     video_cursor.execute("SELECT id, platform FROM videos WHERE "
                          "soundnet_status<>'Success' AND soundnet_status<>'No Audio' AND resnet_status='Success'")
     videos = video_cursor.fetchall()
@@ -81,4 +80,3 @@ def run():
 
 if __name__ == '__main__':
     run()
-    # TODO run with more memory for those long audio tracks

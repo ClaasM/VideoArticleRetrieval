@@ -33,7 +33,6 @@ def classify(article):
         topic_id = topic[0]
         topic_probability = topic[1]
         """
-    # TODO this ignores topics with <1% probability
     topics = model[dictionary.doc2bow(tokens)]
     return source_url, topics
 

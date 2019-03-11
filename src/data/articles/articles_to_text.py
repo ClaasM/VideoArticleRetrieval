@@ -18,7 +18,6 @@ if __name__ == "__main__":
     crawling_progress = StatusVisualization(len(article_urls), update_every=100)
 
     for source_url, in article_urls:
-        # TODO there should be a method in common/article
         article_path, article_file = article_helper.get_article_html_filepath(source_url)
         html = util.load_gzip_text(os.path.join(article_path, article_file))
         try:
@@ -27,7 +26,6 @@ if __name__ == "__main__":
             c.execute("UPDATE articles SET text=%s, text_extraction_status=%s WHERE source_url=%s", [text, "Success", source_url])
             conn.commit()
         except Exception as e:
-            # TODO use type(exception).__name__ everywhere
             c.execute("UPDATE articles SET text_extraction_status=%s WHERE source_url=%s", [type(e).__name__, source_url])
 
 

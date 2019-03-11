@@ -31,9 +31,6 @@ def init_worker():
     global model
     model = KeyedVectors.load(W2V_FILE)
 
-
-# TODO use doc2bow from the dictionary
-# TODO divide by max
 def count_tokens(tokens):
     token_counter = dict()
     for word in vocabulary:

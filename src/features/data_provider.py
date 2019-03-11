@@ -1,7 +1,3 @@
-"""
-TODO documentation
-"""
-
 import time
 import zlib
 

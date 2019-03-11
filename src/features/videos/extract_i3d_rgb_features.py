@@ -43,7 +43,6 @@ def process(video):
         if frame_count < NUM_FRAMES * NUM_SEGMENTS:
             return "Too few frames", id, platform, None
 
-        # TODO this differs from approaches in current research
         # Divide the video into NUM_SEGMENTS segments and take the center NUM_FRAMES frames for analysis.
         padding_frames = int((frame_count / NUM_SEGMENTS - NUM_FRAMES) / 2)
         segments = np.zeros((NUM_SEGMENTS, NUM_FRAMES, FRAME_WIDTH, FRAME_HEIGHT, NUM_RGB_CHANNELS))
@@ -69,10 +68,6 @@ def process(video):
     except Exception as e:
         return str(e), id, platform, None
 
-
-# TODO in thesis: this is from Learning Joint Embedding with Multimodal Cues for Cross-Modal Video-Text Retrieval
-# TODO maybe use from deepmind repository: https://github.com/deepmind/kinetics-i3d/tree/master/data
-# TODO set image_data_format='channels_last
 def run():
     conn = psycopg2.connect(database="video_article_retrieval", user="postgres")
     video_cursor = conn.cursor()

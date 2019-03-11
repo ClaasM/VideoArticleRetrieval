@@ -1,7 +1,3 @@
-"""
-TODO don't copy-paste code from the other project
-"""
-
 import os
 
 ENDINGS = {

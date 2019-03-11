@@ -32,7 +32,6 @@ def build_model(input_size, output_size, regularization):
     # model.summary()
 
     # Compiling model
-    # TODO can't really use a distance metric here because
     # we need a batch x 2048, batch x 2048 -> 2048 function
     # Cosine distance is batch x 2048, batch x 2048 -> batch x batch
     loss = cosine_proximity
@@ -41,8 +40,6 @@ def build_model(input_size, output_size, regularization):
 
     return model
 
-
-# TODO move to different files since its used in the ranking callback too
 def cosine_proximity(y_true, y_pred):
     y_true = tf.nn.l2_normalize(y_true, dim=-1)
     y_pred = tf.nn.l2_normalize(y_pred, dim=-1)

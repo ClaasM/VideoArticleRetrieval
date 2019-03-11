@@ -27,7 +27,7 @@ def get_probability_sum(model="yolo"):
 def get_probability_size_sum(model="yolo"):
     features_connection = psycopg2.connect(database="video_article_retrieval", user="postgres")
     # Calculates the size of the object in percent of the size of the frame.
-    size_formula = "" # TODO
+    size_formula = ""
     query = "SELECT platform, id, "
     query += ",".join("SUM(CASE WHEN class='%s' THEN %s END) as %s"
                       % (label, size_formula, label.replace(" ", "_")) for label in constants.COCO_CLASS_NAMES)
@@ -40,12 +40,10 @@ def divide_by_duration(object_detection_dataframe):
     """
     For each video, for each label, the sum of the probability of all occurrences of that label,
     divided by the duration of the video
-    TODO this should probably be one query and should only return a cursor, with a connection as an argument
     :return: Dataframe
     """
 
     # Get the duration of each video
-    # TODO this can probably be done easier
     data_connection = psycopg2.connect(database="gdelt_social_video", user="postgres")
     data_cursor = data_connection.cursor()
 

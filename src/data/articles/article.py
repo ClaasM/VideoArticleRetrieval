@@ -23,8 +23,6 @@ def get_article_text_filepath(url):
 def url_to_path(url):
     """
     we ignore the fragment identifier as per https://tools.ietf.org/html/rfc3986 TODO quote
-    TODO this is duplicated code from the other project
-    TODO this could also be a package
     :param url:
     :return:
     """

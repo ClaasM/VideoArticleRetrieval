@@ -1,4 +1,3 @@
-# TODO add source
 """Inception-v1 Inflated 3D ConvNet used for Kinetics CVPR paper.
 
 The model is introduced in:

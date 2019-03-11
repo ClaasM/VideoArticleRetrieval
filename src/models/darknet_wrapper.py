@@ -163,7 +163,6 @@ def detect(net, meta, image, thresh=.5, hier_thresh=.5, nms=.45):
 def initialize_classifier(config="cfg/yolov3.cfg", weights="yolov3.weights", data="cfg/coco.data"):
     try:
         # Change the working directory to that of darknet to make the paths within darknet work
-        # (TODO do properly)
         os.chdir(os.environ["PROJECT_BASE_PATH"] + '/darknet')
         net = load_net(config.encode("utf-8"), weights.encode("utf-8"), 0)
         meta = load_meta(data.encode("utf-8"))

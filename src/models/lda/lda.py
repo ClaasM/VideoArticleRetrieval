@@ -25,11 +25,6 @@ def get_average_topic(video_id, video_platform):
 
 
 def get_topic_columns(num_topics=10):
-    """
-    TODO use this everywhere
-    :param num_topics:
-    :return:
-    """
     return ["topic_%d" % index for index in range(0, num_topics)]
 
 
