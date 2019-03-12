@@ -22,7 +22,7 @@ def get_article_text_filepath(url):
 
 def url_to_path(url):
     """
-    we ignore the fragment identifier as per https://tools.ietf.org/html/rfc3986 TODO quote
+    we ignore the fragment identifier as per https://tools.ietf.org/html/rfc3986
     :param url:
     :return:
     """
